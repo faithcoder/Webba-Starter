@@ -43,7 +43,7 @@ if ( ! function_exists( 'webba_setup' ) ) {
 			'script',
 		) );
 
-		add_editor_style( 'assets/css/main.css' );
+		add_editor_style( array( 'assets/css/main.css', 'assets/css/blocks.css' ) );
 
 		register_nav_menus( array(
 			'primary' => esc_html__( 'Primary Menu', 'webba-starter' ),
@@ -69,6 +69,13 @@ function webba_enqueue_assets() {
 		'webba-main',
 		WEBBA_URI . 'assets/css/main.css',
 		array(),
+		WEBBA_VERSION
+	);
+
+	wp_enqueue_style(
+		'webba-blocks',
+		WEBBA_URI . 'assets/css/blocks.css',
+		array( 'webba-main' ),
 		WEBBA_VERSION
 	);
 
@@ -127,6 +134,7 @@ $webba_includes = array(
 	'inc/webba-integration.php',
 	'inc/required-plugins.php',
 	'inc/demo-importer.php',
+	'inc/blocks.php',
 );
 
 foreach ( $webba_includes as $webba_file ) {

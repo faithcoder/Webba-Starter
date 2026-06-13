@@ -1,0 +1,255 @@
+.webba-block {
+	position: relative;
+	background-size: cover;
+	background-position: center;
+}
+
+.webba-block--light {
+	background-color: var(--light);
+}
+
+.webba-block--dark {
+	color: var(--white);
+	background-color: var(--dark);
+}
+
+.webba-block--dark .webba-eyebrow,
+.webba-block--dark a:not(.webba-button) {
+	color: #93c5fd;
+}
+
+.webba-block--dark p,
+.webba-block--dark .webba-section-heading p {
+	color: #cbd5e1;
+}
+
+.webba-block--primary-soft {
+	background:
+		linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.02)),
+		var(--white);
+}
+
+.webba-block--premium {
+	background:
+		linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(37, 99, 235, 0.74)),
+		var(--dark);
+	color: var(--white);
+}
+
+.webba-block--premium p {
+	color: #dbeafe;
+}
+
+.webba-hero-block__grid {
+	display: grid;
+	gap: clamp(1.5rem, 4vw, 3rem);
+	align-items: center;
+}
+
+.webba-hero-block--media-left .webba-hero-block__visual {
+	order: -1;
+}
+
+.webba-hero-block--centered .webba-hero-block__grid {
+	max-width: 860px;
+	text-align: center;
+}
+
+.webba-hero-block--centered .webba-hero-block__content,
+.webba-hero-block--centered .webba-hero-block__description {
+	margin-inline: auto;
+}
+
+.webba-hero-block h1 {
+	max-width: 820px;
+	margin: 0 0 1rem;
+	font-size: clamp(2.35rem, 6vw, 5rem);
+	line-height: 1.02;
+}
+
+.webba-hero-block__description {
+	max-width: 650px;
+	margin-bottom: 1.5rem;
+	color: var(--muted);
+	font-size: clamp(1.05rem, 2vw, 1.25rem);
+}
+
+.webba-hero-block__visual img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+	border-radius: calc(var(--radius) + 8px);
+	box-shadow: var(--shadow);
+}
+
+.webba-hero-block__panel {
+	padding: clamp(1.5rem, 3vw, 2rem);
+	background: rgba(255, 255, 255, 0.92);
+	border: 1px solid var(--border);
+	border-radius: calc(var(--radius) + 8px);
+	box-shadow: var(--shadow);
+	color: var(--dark);
+}
+
+.webba-hero-block__panel ul {
+	display: grid;
+	gap: 0.7rem;
+	margin: 1rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.webba-hero-block__panel li {
+	position: relative;
+	padding-left: 1.6rem;
+}
+
+.webba-hero-block__panel li::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0.55rem;
+	width: 0.7rem;
+	height: 0.7rem;
+	background: var(--primary);
+	border-radius: 999px;
+}
+
+.webba-block-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.webba-block-card {
+	overflow: hidden;
+	padding: clamp(1.15rem, 2vw, 1.5rem);
+	background: var(--white);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+	color: var(--dark);
+}
+
+.webba-block-card h3 {
+	margin: 0 0 0.55rem;
+	font-size: 1.2rem;
+	line-height: 1.25;
+}
+
+.webba-block-card p {
+	margin: 0.5rem 0 0;
+	color: var(--muted);
+}
+
+.webba-block-card__image {
+	display: block;
+	width: calc(100% + 3rem);
+	max-width: none;
+	height: 190px;
+	margin: -1.5rem -1.5rem 1rem;
+	object-fit: cover;
+}
+
+.webba-card-label {
+	display: inline-flex;
+	align-items: center;
+	min-height: 28px;
+	padding: 0.2rem 0.65rem;
+	color: var(--primary);
+	background: #dbeafe;
+	border-radius: 999px;
+	font-size: 0.78rem;
+	font-weight: 800;
+}
+
+.webba-card-price {
+	color: var(--dark) !important;
+	font-size: 1.75rem;
+	font-weight: 850;
+}
+
+.webba-booking-block {
+	background-color: var(--light);
+}
+
+.webba-booking-block .webba-booking-card {
+	max-width: 980px;
+	margin-inline: auto;
+}
+
+.webba-faq-block .webba-faq {
+	background: var(--white);
+}
+
+.webba-cta-block {
+	color: var(--white);
+	background: var(--dark);
+}
+
+.webba-cta-block__inner {
+	display: grid;
+	gap: 1.5rem;
+	align-items: center;
+}
+
+.webba-cta-block h2 {
+	margin: 0;
+}
+
+.webba-cta-block p {
+	max-width: 700px;
+	color: #cbd5e1;
+}
+
+.editor-styles-wrapper .webba-block {
+	width: 100%;
+}
+
+.editor-styles-wrapper .webba-section {
+	padding: 4rem 1rem;
+}
+
+.webba-editor-card-image {
+	display: block;
+	width: 100%;
+	height: 120px;
+	margin-bottom: 0.75rem;
+	object-fit: cover;
+	border-radius: 8px;
+}
+
+.webba-editor-control-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+	margin-top: 0.75rem;
+}
+
+@media (min-width: 760px) {
+	.webba-hero-block__grid {
+		grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+	}
+
+	.webba-hero-block--centered .webba-hero-block__grid {
+		display: block;
+	}
+
+	.webba-block-grid--2 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.webba-block-grid--3 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.webba-block-grid--4 {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.webba-cta-block__inner {
+		grid-template-columns: 1fr auto;
+	}
+}

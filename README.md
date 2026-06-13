@@ -12,7 +12,8 @@ Webba Starter is a lightweight hybrid WordPress theme for businesses using the W
 
 - Hybrid WordPress architecture, not Full Site Editing.
 - Webba Booking shortcode support with `[webbabooking]`.
-- Gutenberg pattern sections and complete demo homepage patterns.
+- Custom Webba Gutenberg blocks for Hero, Services, Booking, Staff, Pricing, Testimonials, FAQ, and Contact CTA sections.
+- Gutenberg pattern sections and complete demo homepage patterns built from the Webba blocks.
 - Optional Elementor Full Width and Elementor Canvas page templates.
 - Customizer controls for header CTA, contact details, footer copyright, and default booking shortcode.
 - Responsive, mobile-first CSS without Bootstrap, Tailwind, or jQuery.
@@ -51,7 +52,22 @@ Patterns are available under:
 - Webba Sections
 - Webba Booking Sections
 
-Use these to build exportable demo pages without requiring Elementor.
+Use these to build exportable demo pages without requiring Elementor. The patterns are composed from custom `webba/*` blocks, so users can insert a professional section and then adjust its content and design settings in the block sidebar.
+
+## Webba Blocks
+
+The theme includes these custom blocks:
+
+- `webba/hero`
+- `webba/services`
+- `webba/booking`
+- `webba/staff`
+- `webba/pricing`
+- `webba/testimonials`
+- `webba/faq`
+- `webba/contact-cta`
+
+Each block supports Gutenberg style controls for alignment, colors, gradients, typography, spacing, borders, dimensions, shadow, anchors, and custom classes. The blocks also include Webba-specific controls for layout, section style, background image, overlay opacity, cards, FAQ items, CTA links, booking shortcode, and hero media.
 
 ## Elementor Support
 
