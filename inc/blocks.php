@@ -190,16 +190,19 @@ function webba_default_card_block_content( $type ) {
 			'title'   => __( 'Clients appreciate the simple booking flow.', 'webba-starter' ),
 			'items'   => array(
 				array(
-					'title' => __( 'Clear and fast', 'webba-starter' ),
-					'text'  => __( 'The booking process was easy from my phone.', 'webba-starter' ),
+					'title'  => __( 'Avery Brooks', 'webba-starter' ),
+					'text'   => __( 'The booking process was easy from my phone.', 'webba-starter' ),
+					'rating' => 5,
 				),
 				array(
-					'title' => __( 'Professional', 'webba-starter' ),
-					'text'  => __( 'A polished experience from start to finish.', 'webba-starter' ),
+					'title'  => __( 'Morgan Lee', 'webba-starter' ),
+					'text'   => __( 'A polished experience from start to finish.', 'webba-starter' ),
+					'rating' => 5,
 				),
 				array(
-					'title' => __( 'Helpful reminders', 'webba-starter' ),
-					'text'  => __( 'The reminders made the appointment simple.', 'webba-starter' ),
+					'title'  => __( 'Jordan Smith', 'webba-starter' ),
+					'text'   => __( 'The reminders made the appointment simple.', 'webba-starter' ),
+					'rating' => 5,
 				),
 			),
 		),
@@ -286,11 +289,19 @@ function webba_render_cards_block( $attributes, $type ) {
 			<div class="webba-block-grid webba-block-grid--<?php echo esc_attr( $columns ); ?>">
 				<?php foreach ( $items as $item ) : ?>
 					<article class="webba-block-card">
-						<?php if ( ! empty( $item['imageUrl'] ) ) : ?><img class="webba-block-card__image" src="<?php echo esc_url( $item['imageUrl'] ); ?>" alt=""><?php endif; ?>
-						<?php if ( ! empty( $item['label'] ) ) : ?><p class="webba-card-label"><?php echo esc_html( $item['label'] ); ?></p><?php endif; ?>
-						<?php if ( ! empty( $item['title'] ) ) : ?><h3><?php echo esc_html( $item['title'] ); ?></h3><?php endif; ?>
-						<?php if ( ! empty( $item['price'] ) ) : ?><p class="webba-card-price"><?php echo esc_html( $item['price'] ); ?></p><?php endif; ?>
-						<?php if ( ! empty( $item['text'] ) ) : ?><p><?php echo esc_html( $item['text'] ); ?></p><?php endif; ?>
+						<?php if ( 'testimonials' === $type ) : ?>
+							<div class="webba-testimonial-stars" aria-label="<?php echo esc_attr( sprintf( __( '%d out of 5 stars', 'webba-starter' ), absint( $item['rating'] ?? 5 ) ) ); ?>">
+								<?php echo esc_html( str_repeat( '★', max( 1, min( 5, absint( $item['rating'] ?? 5 ) ) ) ) ); ?>
+							</div>
+							<?php if ( ! empty( $item['text'] ) ) : ?><blockquote class="webba-testimonial-quote"><?php echo esc_html( $item['text'] ); ?></blockquote><?php endif; ?>
+							<?php if ( ! empty( $item['title'] ) ) : ?><p class="webba-testimonial-author"><?php echo esc_html( $item['title'] ); ?></p><?php endif; ?>
+						<?php else : ?>
+							<?php if ( ! empty( $item['imageUrl'] ) ) : ?><img class="webba-block-card__image" src="<?php echo esc_url( $item['imageUrl'] ); ?>" alt=""><?php endif; ?>
+							<?php if ( ! empty( $item['label'] ) ) : ?><p class="webba-card-label"><?php echo esc_html( $item['label'] ); ?></p><?php endif; ?>
+							<?php if ( ! empty( $item['title'] ) ) : ?><h3><?php echo esc_html( $item['title'] ); ?></h3><?php endif; ?>
+							<?php if ( ! empty( $item['price'] ) ) : ?><p class="webba-card-price"><?php echo esc_html( $item['price'] ); ?></p><?php endif; ?>
+							<?php if ( ! empty( $item['text'] ) ) : ?><p><?php echo esc_html( $item['text'] ); ?></p><?php endif; ?>
+						<?php endif; ?>
 					</article>
 				<?php endforeach; ?>
 			</div>

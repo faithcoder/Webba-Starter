@@ -187,6 +187,13 @@
 
 	function cardControls(items, setItems, options) {
 		options = options || {};
+		var showLabel = options.showLabel !== false;
+		var showPrice = options.showPrice !== false;
+		var showImage = options.showImage !== false;
+		var showRating = options.showRating === true;
+		var labelText = options.labelText || __('Label / duration', 'webba-starter');
+		var titleLabel = options.titleLabel || __('Title', 'webba-starter');
+		var textLabel = options.textLabel || __('Text', 'webba-starter');
 
 		return el(PanelBody, { title: options.title || __('Cards', 'webba-starter'), initialOpen: true },
 			(options.showColumns === false) ? null : el(RangeControl, {
@@ -203,34 +210,43 @@
 					key: index
 				},
 					el(TextControl, {
-						label: __('Title', 'webba-starter'),
+						label: titleLabel,
 						value: item.title || '',
 						onChange: function (value) {
 							setItems(updateItem(items, index, 'title', value));
 						}
 					}),
 					el(TextareaControl, {
-						label: __('Text', 'webba-starter'),
+						label: textLabel,
 						value: item.text || '',
 						onChange: function (value) {
 							setItems(updateItem(items, index, 'text', value));
 						}
 					}),
-					el(TextControl, {
-						label: __('Label / duration', 'webba-starter'),
+					showLabel ? el(TextControl, {
+						label: labelText,
 						value: item.label || '',
 						onChange: function (value) {
 							setItems(updateItem(items, index, 'label', value));
 						}
-					}),
-					el(TextControl, {
+					}) : null,
+					showPrice ? el(TextControl, {
 						label: __('Price', 'webba-starter'),
 						value: item.price || '',
 						onChange: function (value) {
 							setItems(updateItem(items, index, 'price', value));
 						}
-					}),
-					el(BaseControl, { label: __('Image', 'webba-starter') },
+					}) : null,
+					showRating ? el(RangeControl, {
+						label: __('Star rating', 'webba-starter'),
+						value: item.rating || 5,
+						min: 1,
+						max: 5,
+						onChange: function (value) {
+							setItems(updateItem(items, index, 'rating', value));
+						}
+					}) : null,
+					showImage ? el(BaseControl, { label: __('Image', 'webba-starter') },
 						item.imageUrl ? el('img', { className: 'webba-editor-card-image', src: item.imageUrl, alt: '' }) : null,
 						el('div', { className: 'webba-editor-control-row' },
 							el(MediaUploadCheck, null,
@@ -251,7 +267,7 @@
 								}
 							}, __('Remove', 'webba-starter')) : null
 						)
-					),
+					) : null,
 					el('div', { className: 'webba-editor-control-row' },
 						el(Button, {
 							variant: 'secondary',
@@ -308,7 +324,14 @@
 						columns: attributes.columns || 3,
 						onColumnsChange: function (value) {
 							setAttributes({ columns: value });
-						}
+						},
+						showPrice: type === 'pricing',
+						showLabel: type !== 'testimonials',
+						showImage: type !== 'testimonials',
+						showRating: type === 'testimonials',
+						titleLabel: type === 'testimonials' ? __('Author', 'webba-starter') : __('Title', 'webba-starter'),
+						labelText: type === 'staff' ? __('Role / position', 'webba-starter') : __('Label / duration', 'webba-starter'),
+						textLabel: type === 'staff' ? __('Bio', 'webba-starter') : (type === 'testimonials' ? __('Quote text', 'webba-starter') : __('Text', 'webba-starter'))
 					}),
 					backgroundControls(attributes, setAttributes)
 				),
@@ -320,6 +343,14 @@
 					),
 					el('div', { className: 'webba-block-grid webba-block-grid--' + (attributes.columns || 3) },
 						items.map(function (item, index) {
+							if (type === 'testimonials') {
+								return el('article', { className: 'webba-block-card', key: index },
+									el('div', { className: 'webba-testimonial-stars' }, '★'.repeat(Math.max(1, Math.min(5, item.rating || 5)))),
+									item.text ? el('blockquote', { className: 'webba-testimonial-quote' }, item.text) : null,
+									item.title ? el('p', { className: 'webba-testimonial-author' }, item.title) : null
+								);
+							}
+
 							return el('article', { className: 'webba-block-card', key: index },
 								item.imageUrl ? el('img', { className: 'webba-block-card__image', src: item.imageUrl, alt: '' }) : null,
 								item.label ? el('p', { className: 'webba-card-label' }, item.label) : null,
@@ -530,7 +561,11 @@
 						setAttributes({ items: nextItems });
 					}, {
 						title: __('Questions', 'webba-starter'),
-						showColumns: false
+						showColumns: false,
+						showLabel: false,
+						showPrice: false,
+						showImage: false,
+						textLabel: __('Answer', 'webba-starter')
 					}),
 					backgroundControls(attributes, setAttributes)
 				),
@@ -620,9 +655,9 @@
 		eyebrow: 'Testimonials',
 		title: 'Clients appreciate the simple booking flow.',
 		items: [
-			{ title: 'Clear and fast', text: 'The booking process was easy from my phone.' },
-			{ title: 'Professional', text: 'A polished experience from start to finish.' },
-			{ title: 'Helpful reminders', text: 'The reminders made the appointment simple.' }
+			{ title: 'Avery Brooks', text: 'The booking process was easy from my phone.', rating: 5 },
+			{ title: 'Morgan Lee', text: 'A polished experience from start to finish.', rating: 5 },
+			{ title: 'Jordan Smith', text: 'The reminders made the appointment simple.', rating: 5 }
 		]
 	});
 }(window.wp.blocks, window.wp.element, window.wp.blockEditor, window.wp.components, window.wp.i18n, window.wp.serverSideRender));
