@@ -222,11 +222,14 @@ function webba_render_hero_block( $attributes ) {
 	$button_url  = $attributes['buttonUrl'] ?? '#booking';
 	$media_url   = $attributes['mediaUrl'] ?? '';
 	$layout      = $attributes['layout'] ?? 'media-right';
+	$content_pos = $attributes['contentPosition'] ?? 'left';
+	$vertical    = $attributes['verticalAlign'] ?? 'center';
+	$image_pos   = $attributes['imagePosition'] ?? 'center';
 	$features    = webba_sanitize_items( $attributes['features'] ?? array() );
 
 	ob_start();
 	?>
-	<section <?php echo webba_block_wrapper( $attributes, 'webba-block webba-hero-block webba-section webba-hero-block--' . sanitize_html_class( $layout ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+	<section <?php echo webba_block_wrapper( $attributes, 'webba-block webba-hero-block webba-section webba-hero-block--' . sanitize_html_class( $layout ) . ' webba-hero-block--content-' . sanitize_html_class( $content_pos ) . ' webba-hero-block--vertical-' . sanitize_html_class( $vertical ) . ' webba-hero-block--image-' . sanitize_html_class( $image_pos ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 		<div class="webba-container webba-hero-block__grid">
 			<div class="webba-hero-block__content">
 				<?php if ( $eyebrow ) : ?><p class="webba-eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>
@@ -298,6 +301,96 @@ function webba_render_cards_block( $attributes, $type ) {
 }
 
 /**
+ * Convert a Webba shortcode string into Gutenberg block attributes.
+ *
+ * @param string $shortcode Shortcode text.
+ * @return array
+ */
+function webba_parse_booking_shortcode_attributes( $shortcode ) {
+	$attributes = array();
+
+	if ( ! preg_match( '/^\s*\[webbabooking([^\]]*)\]\s*$/', $shortcode, $matches ) ) {
+		return $attributes;
+	}
+
+	$shortcode_attributes = shortcode_parse_atts( $matches[1] );
+
+	if ( ! is_array( $shortcode_attributes ) ) {
+		return $attributes;
+	}
+
+	if ( ! empty( $shortcode_attributes['service'] ) ) {
+		$attributes['service'] = sanitize_text_field( $shortcode_attributes['service'] );
+	}
+
+	foreach ( array( 'category', 'location', 'staff' ) as $key ) {
+		if ( ! empty( $shortcode_attributes[ $key ] ) ) {
+			$attributes[ $key ] = array_filter( array_map( 'absint', explode( ',', $shortcode_attributes[ $key ] ) ) );
+		}
+	}
+
+	if ( ! empty( $shortcode_attributes['category_list'] ) && 'yes' === $shortcode_attributes['category_list'] ) {
+		$attributes['categoryList'] = true;
+	}
+
+	return $attributes;
+}
+
+/**
+ * Render the real Webba Booking form and enqueue plugin assets when possible.
+ *
+ * @param string $shortcode Shortcode text.
+ * @return string
+ */
+function webba_render_booking_form_embed( $shortcode ) {
+	$shortcode = trim( $shortcode );
+
+	if ( '' === $shortcode ) {
+		$shortcode = webba_get_booking_shortcode();
+	}
+
+	if ( class_exists( 'WBK_Gutenberg_Booking_Form_Block' ) && method_exists( 'WBK_Gutenberg_Booking_Form_Block', 'render' ) ) {
+		$output = WBK_Gutenberg_Booking_Form_Block::render(
+			webba_parse_booking_shortcode_attributes( $shortcode ),
+			'',
+			null
+		);
+
+		if ( '' !== trim( $output ) ) {
+			return $output;
+		}
+	}
+
+	$output = do_shortcode( wp_kses_post( $shortcode ) );
+
+	if ( trim( $output ) === $shortcode && current_user_can( 'activate_plugins' ) ) {
+		return '<p class="webba-booking-warning">' . esc_html__( 'Webba Booking shortcode is not rendering. Confirm the Webba Booking plugin is active and at least one service is configured.', 'webba-starter' ) . '</p>';
+	}
+
+	return $output;
+}
+
+/**
+ * Enqueue Webba Booking assets early when the page contains the theme booking block.
+ */
+function webba_enqueue_booking_block_assets() {
+	if ( is_admin() || ! is_singular() || ! function_exists( 'has_block' ) ) {
+		return;
+	}
+
+	$post = get_post();
+
+	if ( ! $post instanceof WP_Post || ! has_block( 'webba/booking', $post ) ) {
+		return;
+	}
+
+	if ( class_exists( 'WBK_Gutenberg_Booking_Form_Block' ) && method_exists( 'WBK_Gutenberg_Booking_Form_Block', 'enqueue_frontend_assets' ) ) {
+		WBK_Gutenberg_Booking_Form_Block::enqueue_frontend_assets();
+	}
+}
+add_action( 'wp_enqueue_scripts', 'webba_enqueue_booking_block_assets', 20 );
+
+/**
  * Render Webba Booking block.
  *
  * @param array $attributes Block attributes.
@@ -322,7 +415,7 @@ function webba_render_booking_block( $attributes ) {
 				<?php if ( $title ) : ?><h2><?php echo esc_html( $title ); ?></h2><?php endif; ?>
 				<?php if ( $description ) : ?><p><?php echo esc_html( $description ); ?></p><?php endif; ?>
 				<div class="webba-booking-embed">
-					<?php echo do_shortcode( wp_kses_post( $shortcode ) ); ?>
+					<?php echo webba_render_booking_form_embed( $shortcode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 			</div>
 		</div>
@@ -396,7 +489,7 @@ function webba_register_block_assets() {
 	wp_register_script(
 		'webba-blocks-editor',
 		WEBBA_URI . 'assets/js/blocks.js',
-		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components' ),
+		array( 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-server-side-render' ),
 		WEBBA_VERSION,
 		true
 	);
@@ -450,6 +543,18 @@ function webba_register_blocks() {
 					'layout'      => array(
 						'type'    => 'string',
 						'default' => 'media-right',
+					),
+					'contentPosition' => array(
+						'type'    => 'string',
+						'default' => 'left',
+					),
+					'verticalAlign' => array(
+						'type'    => 'string',
+						'default' => 'center',
+					),
+					'imagePosition' => array(
+						'type'    => 'string',
+						'default' => 'center',
 					),
 					'features'    => array(
 						'type'    => 'array',
@@ -512,6 +617,10 @@ function webba_register_blocks() {
 					'shortcode'   => array(
 						'type'    => 'string',
 						'default' => '[webbabooking]',
+					),
+					'previewInEditor' => array(
+						'type'    => 'boolean',
+						'default' => true,
 					),
 				)
 			),

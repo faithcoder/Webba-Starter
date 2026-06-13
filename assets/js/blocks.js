@@ -1,9 +1,10 @@
-(function (blocks, element, blockEditor, components, i18n) {
+(function (blocks, element, blockEditor, components, i18n, serverSideRender) {
 	'use strict';
 
 	var el = element.createElement;
 	var __ = i18n.__;
 	var registerBlockType = blocks.registerBlockType;
+	var ServerSideRender = serverSideRender;
 	var InspectorControls = blockEditor.InspectorControls;
 	var MediaUpload = blockEditor.MediaUpload;
 	var MediaUploadCheck = blockEditor.MediaUploadCheck;
@@ -359,6 +360,9 @@
 			buttonUrl: { type: 'string', default: '#booking' },
 			mediaUrl: { type: 'string', default: '' },
 			layout: { type: 'string', default: 'media-right' },
+			contentPosition: { type: 'string', default: 'left' },
+			verticalAlign: { type: 'string', default: 'center' },
+			imagePosition: { type: 'string', default: 'center' },
 			features: { type: 'array', default: [{ text: 'Real-time service booking' }, { text: 'Deposits and approvals' }, { text: 'Reminder-ready workflows' }] }
 		}),
 		supports: supports,
@@ -366,7 +370,7 @@
 			var attributes = props.attributes;
 			var setAttributes = props.setAttributes;
 
-			return el('section', wrapperProps(attributes, 'webba-block webba-hero-block webba-section webba-hero-block--' + (attributes.layout || 'media-right')),
+			return el('section', wrapperProps(attributes, 'webba-block webba-hero-block webba-section webba-hero-block--' + (attributes.layout || 'media-right') + ' webba-hero-block--content-' + (attributes.contentPosition || 'left') + ' webba-hero-block--vertical-' + (attributes.verticalAlign || 'center') + ' webba-hero-block--image-' + (attributes.imagePosition || 'center')),
 				el(InspectorControls, null,
 					el(PanelBody, { title: __('Hero content', 'webba-starter'), initialOpen: true },
 						el(TextControl, { label: __('Eyebrow', 'webba-starter'), value: attributes.eyebrow || '', onChange: function (value) { setAttributes({ eyebrow: value }); } }),
@@ -383,6 +387,36 @@
 								{ label: __('Centered', 'webba-starter'), value: 'centered' }
 							],
 							onChange: function (value) { setAttributes({ layout: value }); }
+						}),
+						el(SelectControl, {
+							label: __('Text position', 'webba-starter'),
+							value: attributes.contentPosition || 'left',
+							options: [
+								{ label: __('Left', 'webba-starter'), value: 'left' },
+								{ label: __('Center', 'webba-starter'), value: 'center' },
+								{ label: __('Right', 'webba-starter'), value: 'right' }
+							],
+							onChange: function (value) { setAttributes({ contentPosition: value }); }
+						}),
+						el(SelectControl, {
+							label: __('Vertical position', 'webba-starter'),
+							value: attributes.verticalAlign || 'center',
+							options: [
+								{ label: __('Top', 'webba-starter'), value: 'top' },
+								{ label: __('Middle', 'webba-starter'), value: 'center' },
+								{ label: __('Bottom', 'webba-starter'), value: 'bottom' }
+							],
+							onChange: function (value) { setAttributes({ verticalAlign: value }); }
+						}),
+						el(SelectControl, {
+							label: __('Image position', 'webba-starter'),
+							value: attributes.imagePosition || 'center',
+							options: [
+								{ label: __('Left', 'webba-starter'), value: 'left' },
+								{ label: __('Center', 'webba-starter'), value: 'center' },
+								{ label: __('Right', 'webba-starter'), value: 'right' }
+							],
+							onChange: function (value) { setAttributes({ imagePosition: value }); }
 						}),
 						el(TextareaControl, {
 							label: __('Feature highlights', 'webba-starter'),
@@ -436,7 +470,8 @@
 			title: { type: 'string', default: 'Book your appointment' },
 			eyebrow: { type: 'string', default: 'Booking' },
 			description: { type: 'string', default: 'Choose a service and time below.' },
-			shortcode: { type: 'string', default: '[webbabooking]' }
+			shortcode: { type: 'string', default: '[webbabooking]' },
+			previewInEditor: { type: 'boolean', default: true }
 		}),
 		supports: supports,
 		edit: function (props) {
@@ -448,18 +483,28 @@
 					headingControls(attributes, setAttributes),
 					el(PanelBody, { title: __('Booking source', 'webba-starter'), initialOpen: true },
 						el(TextControl, { label: __('Webba shortcode', 'webba-starter'), value: attributes.shortcode || '', onChange: function (value) { setAttributes({ shortcode: value }); } }),
+						el(components.ToggleControl, {
+							label: __('Render form preview in editor', 'webba-starter'),
+							checked: attributes.previewInEditor !== false,
+							onChange: function (value) {
+								setAttributes({ previewInEditor: value });
+							}
+						}),
 						el('p', null, __('Users may replace this section with the Webba Gutenberg block, Webba shortcode, or Elementor Webba widget.', 'webba-starter'))
 					),
 					backgroundControls(attributes, setAttributes)
 				),
-				el('div', { className: 'webba-container' },
+				attributes.previewInEditor === false ? el('div', { className: 'webba-container' },
 					el('div', { className: 'webba-booking-card' },
 						attributes.eyebrow ? el('p', { className: 'webba-eyebrow' }, attributes.eyebrow) : null,
 						attributes.title ? el('h2', null, attributes.title) : null,
 						attributes.description ? el('p', null, attributes.description) : null,
 						el('div', { className: 'webba-booking-embed' }, attributes.shortcode || '[webbabooking]')
 					)
-				)
+				) : el(ServerSideRender, {
+					block: 'webba/booking',
+					attributes: attributes
+				})
 			);
 		},
 		save: function () {
@@ -580,4 +625,4 @@
 			{ title: 'Helpful reminders', text: 'The reminders made the appointment simple.' }
 		]
 	});
-}(window.wp.blocks, window.wp.element, window.wp.blockEditor, window.wp.components, window.wp.i18n));
+}(window.wp.blocks, window.wp.element, window.wp.blockEditor, window.wp.components, window.wp.i18n, window.wp.serverSideRender));

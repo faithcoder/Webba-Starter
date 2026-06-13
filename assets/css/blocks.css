@@ -46,8 +46,71 @@
 	align-items: center;
 }
 
+.webba-hero-block--vertical-top .webba-hero-block__grid {
+	align-items: start;
+}
+
+.webba-hero-block--vertical-center .webba-hero-block__grid {
+	align-items: center;
+}
+
+.webba-hero-block--vertical-bottom .webba-hero-block__grid {
+	align-items: end;
+}
+
 .webba-hero-block--media-left .webba-hero-block__visual {
 	order: -1;
+}
+
+.webba-hero-block--content-left .webba-hero-block__content {
+	text-align: left;
+	justify-self: start;
+}
+
+.webba-hero-block--content-center .webba-hero-block__content {
+	text-align: center;
+	justify-self: center;
+}
+
+.webba-hero-block--content-center .webba-hero-block__description,
+.webba-hero-block--content-center h1 {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.webba-hero-block--content-center .webba-button {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.webba-hero-block--content-right .webba-hero-block__content {
+	text-align: right;
+	justify-self: end;
+}
+
+.webba-hero-block--content-right .webba-hero-block__description,
+.webba-hero-block--content-right h1 {
+	margin-left: auto;
+}
+
+.webba-hero-block--content-right .webba-button {
+	margin-left: auto;
+}
+
+.webba-hero-block--image-left .webba-hero-block__visual {
+	justify-self: start;
+}
+
+.webba-hero-block--image-center .webba-hero-block__visual {
+	justify-self: center;
+}
+
+.webba-hero-block--image-right .webba-hero-block__visual {
+	justify-self: end;
+}
+
+.webba-hero-block__visual {
+	width: 100%;
 }
 
 .webba-hero-block--centered .webba-hero-block__grid {
@@ -177,6 +240,15 @@
 .webba-booking-block .webba-booking-card {
 	max-width: 980px;
 	margin-inline: auto;
+}
+
+.webba-booking-warning {
+	margin: 0;
+	padding: 1rem;
+	color: #7c2d12;
+	background: #ffedd5;
+	border: 1px solid #fed7aa;
+	border-radius: 12px;
 }
 
 .webba-faq-block .webba-faq {
