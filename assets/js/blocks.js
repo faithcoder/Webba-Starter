@@ -14,6 +14,7 @@
 	var TextareaControl = components.TextareaControl;
 	var SelectControl = components.SelectControl;
 	var RangeControl = components.RangeControl;
+	var ColorPalette = components.ColorPalette;
 	var Button = components.Button;
 	var BaseControl = components.BaseControl;
 
@@ -69,6 +70,8 @@
 			description: 'Built for service businesses using Webba Booking, Gutenberg, and optional Elementor layouts.',
 			buttonText: 'Book an Appointment',
 			buttonUrl: '#booking',
+			buttonTextColor: '',
+			buttonBackgroundColor: '',
 			sectionStyle: 'primary-soft',
 			features: [{ text: 'Real-time service booking' }, { text: 'Deposits and approvals' }, { text: 'Reminder-ready workflows' }]
 		},
@@ -329,9 +332,14 @@
 		var showButtonLink = options.showButtonLink === true;
 		var showPosition = options.showPosition === true;
 		var showSocialLinks = options.showSocialLinks === true;
+		var showLabelColors = options.showLabelColors === true;
+		var showButtonColors = options.showButtonColors === true;
 		var labelText = options.labelText || __('Label / duration', 'webba-starter');
 		var titleLabel = options.titleLabel || __('Title', 'webba-starter');
 		var textLabel = options.textLabel || __('Text', 'webba-starter');
+		var itemLabel = options.itemLabel || __('Card', 'webba-starter');
+		var addItemLabel = options.addItemLabel || __('Add card', 'webba-starter');
+		var removeItemLabel = options.removeItemLabel || __('Remove card', 'webba-starter');
 
 		return el(PanelBody, { title: options.title || __('Cards', 'webba-starter'), initialOpen: true },
 			(options.showColumns === false) ? null : el(RangeControl, {
@@ -343,7 +351,7 @@
 			}),
 			(items || []).map(function (item, index) {
 				return el(PanelBody, {
-					title: (item.title || __('Card', 'webba-starter')) + ' #' + (index + 1),
+					title: (item.title || itemLabel) + ' #' + (index + 1),
 					initialOpen: index === 0,
 					key: index
 				},
@@ -368,6 +376,22 @@
 							setItems(updateItem(items, index, 'label', value));
 						}
 					}) : null,
+					showLabel && showLabelColors ? el(BaseControl, { label: __('Label text color', 'webba-starter') },
+						el(ColorPalette, {
+							value: item.labelTextColor || '',
+							onChange: function (value) {
+								setItems(updateItem(items, index, 'labelTextColor', value || ''));
+							}
+						})
+					) : null,
+					showLabel && showLabelColors ? el(BaseControl, { label: __('Label background color', 'webba-starter') },
+						el(ColorPalette, {
+							value: item.labelBackgroundColor || '',
+							onChange: function (value) {
+								setItems(updateItem(items, index, 'labelBackgroundColor', value || ''));
+							}
+						})
+					) : null,
 					showPrice ? el(TextControl, {
 						label: __('Price', 'webba-starter'),
 						value: item.price || '',
@@ -396,6 +420,22 @@
 							setItems(updateItem(items, index, 'buttonUrl', value));
 						}
 					}) : null,
+					showButtonLink && showButtonColors ? el(BaseControl, { label: __('Button text color', 'webba-starter') },
+						el(ColorPalette, {
+							value: item.buttonTextColor || '',
+							onChange: function (value) {
+								setItems(updateItem(items, index, 'buttonTextColor', value || ''));
+							}
+						})
+					) : null,
+					showButtonLink && showButtonColors ? el(BaseControl, { label: __('Button background color', 'webba-starter') },
+						el(ColorPalette, {
+							value: item.buttonBackgroundColor || '',
+							onChange: function (value) {
+								setItems(updateItem(items, index, 'buttonBackgroundColor', value || ''));
+							}
+						})
+					) : null,
 					showRating ? el(RangeControl, {
 						label: __('Star rating', 'webba-starter'),
 						value: item.rating || 5,
@@ -485,7 +525,7 @@
 									return itemIndex !== index;
 								}));
 							}
-						}, __('Remove card', 'webba-starter'))
+						}, removeItemLabel)
 					)
 				);
 			}),
@@ -500,11 +540,15 @@
 						imageUrl: '',
 						buttonText: '',
 						buttonUrl: '',
+						buttonTextColor: '',
+						buttonBackgroundColor: '',
+						labelTextColor: '',
+						labelBackgroundColor: '',
 						position: '',
 						socialLinks: []
 					}]));
 				}
-			}, __('Add card', 'webba-starter'))
+			}, addItemLabel)
 		);
 	}
 
@@ -527,10 +571,16 @@
 						showPrice: type === 'pricing',
 						showButtonLink: type === 'services' || type === 'pricing',
 						showLabel: type !== 'testimonials',
+						showLabelColors: type !== 'testimonials',
 						showImage: type !== 'testimonials',
 						showRating: type === 'testimonials',
 						showPosition: type === 'testimonials',
 						showSocialLinks: type === 'staff',
+						showButtonColors: type === 'services' || type === 'pricing',
+						title: type === 'services' ? __('Services', 'webba-starter') : (type === 'pricing' ? __('Pricing Plans', 'webba-starter') : (type === 'staff' ? __('Team Members', 'webba-starter') : __('Testimonials', 'webba-starter'))),
+						itemLabel: type === 'services' ? __('Service', 'webba-starter') : (type === 'pricing' ? __('Plan', 'webba-starter') : (type === 'staff' ? __('Team Member', 'webba-starter') : __('Testimonial', 'webba-starter'))),
+						addItemLabel: type === 'services' ? __('Add Service', 'webba-starter') : (type === 'pricing' ? __('Add Pricing Plan', 'webba-starter') : (type === 'staff' ? __('Add Team Member', 'webba-starter') : __('Add Testimonial', 'webba-starter'))),
+						removeItemLabel: type === 'services' ? __('Remove Service', 'webba-starter') : (type === 'pricing' ? __('Remove Pricing Plan', 'webba-starter') : (type === 'staff' ? __('Remove Team Member', 'webba-starter') : __('Remove Testimonial', 'webba-starter'))),
 						buttonTextLabel: type === 'services' ? __('View details text', 'webba-starter') : __('Book now text', 'webba-starter'),
 						buttonLinkLabel: type === 'services' ? __('View details link', 'webba-starter') : __('Book now link', 'webba-starter'),
 						titleLabel: type === 'testimonials' ? __('Author', 'webba-starter') : __('Title', 'webba-starter'),
@@ -558,7 +608,13 @@
 
 							return el('article', { className: 'webba-block-card', key: index },
 								item.imageUrl ? el('img', { className: 'webba-block-card__image', src: item.imageUrl, alt: '' }) : null,
-								item.label ? el('p', { className: 'webba-card-label' }, item.label) : null,
+								item.label ? el('p', {
+									className: 'webba-card-label',
+									style: {
+										color: item.labelTextColor || undefined,
+										backgroundColor: item.labelBackgroundColor || undefined
+									}
+								}, item.label) : null,
 								item.title ? el('h3', null, item.title) : null,
 								item.price ? el('p', { className: 'webba-card-price' }, item.price) : null,
 								item.text ? el('p', null, item.text) : null,
@@ -573,7 +629,14 @@
 										}, (link.platform || 'w').slice(0, 1).toUpperCase());
 									})
 								) : null,
-								(type === 'services' || type === 'pricing') && item.buttonText ? el('a', { className: 'webba-card-button', href: item.buttonUrl || '#' }, item.buttonText) : null
+								(type === 'services' || type === 'pricing') && item.buttonText ? el('a', {
+									className: 'webba-card-button',
+									href: item.buttonUrl || '#',
+									style: {
+										color: item.buttonTextColor || undefined,
+										backgroundColor: item.buttonBackgroundColor || undefined
+									}
+								}, item.buttonText) : null
 							);
 						})
 					)
@@ -607,6 +670,8 @@
 			description: { type: 'string', default: blockDefaults.hero.description },
 			buttonText: { type: 'string', default: blockDefaults.hero.buttonText },
 			buttonUrl: { type: 'string', default: blockDefaults.hero.buttonUrl },
+			buttonTextColor: { type: 'string', default: blockDefaults.hero.buttonTextColor },
+			buttonBackgroundColor: { type: 'string', default: blockDefaults.hero.buttonBackgroundColor },
 			mediaUrl: { type: 'string', default: '' },
 			layout: { type: 'string', default: 'media-right' },
 			contentPosition: { type: 'string', default: 'left' },
@@ -627,6 +692,18 @@
 						el(TextareaControl, { label: __('Description', 'webba-starter'), value: attributes.description || '', onChange: function (value) { setAttributes({ description: value }); } }),
 						el(TextControl, { label: __('Button text', 'webba-starter'), value: attributes.buttonText || '', onChange: function (value) { setAttributes({ buttonText: value }); } }),
 						el(TextControl, { label: __('Button URL', 'webba-starter'), value: attributes.buttonUrl || '', onChange: function (value) { setAttributes({ buttonUrl: value }); } }),
+						el(BaseControl, { label: __('Button text color', 'webba-starter') },
+							el(ColorPalette, {
+								value: attributes.buttonTextColor || '',
+								onChange: function (value) { setAttributes({ buttonTextColor: value || '' }); }
+							})
+						),
+						el(BaseControl, { label: __('Button background color', 'webba-starter') },
+							el(ColorPalette, {
+								value: attributes.buttonBackgroundColor || '',
+								onChange: function (value) { setAttributes({ buttonBackgroundColor: value || '' }); }
+							})
+						),
 						el(SelectControl, {
 							label: __('Layout', 'webba-starter'),
 							value: attributes.layout || 'media-right',
@@ -693,7 +770,14 @@
 						attributes.eyebrow ? el('p', { className: 'webba-eyebrow' }, attributes.eyebrow) : null,
 						el('h1', null, attributes.title),
 						attributes.description ? el('p', { className: 'webba-hero-block__description' }, attributes.description) : null,
-						attributes.buttonText ? el('a', { className: 'webba-button', href: attributes.buttonUrl || '#' }, attributes.buttonText) : null
+						attributes.buttonText ? el('a', {
+							className: 'webba-button',
+							href: attributes.buttonUrl || '#',
+							style: {
+								color: attributes.buttonTextColor || undefined,
+								backgroundColor: attributes.buttonBackgroundColor || undefined
+							}
+						}, attributes.buttonText) : null
 					),
 					el('div', { className: 'webba-hero-block__visual' },
 						attributes.mediaUrl ? el('img', { src: attributes.mediaUrl, alt: '' }) : el('div', { className: 'webba-hero-block__panel' },
@@ -780,6 +864,9 @@
 						setAttributes({ items: nextItems });
 					}, {
 						title: __('Questions', 'webba-starter'),
+						itemLabel: __('Question', 'webba-starter'),
+						addItemLabel: __('Add Question', 'webba-starter'),
+						removeItemLabel: __('Remove Question', 'webba-starter'),
 						showColumns: false,
 						showLabel: false,
 						showPrice: false,

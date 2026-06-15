@@ -149,6 +149,22 @@ function webba_sanitize_social_links( $links ) {
 }
 
 /**
+ * Sanitize a stored color value.
+ *
+ * @param mixed $color Color value.
+ * @return string
+ */
+function webba_sanitize_color_value( $color ) {
+	if ( ! is_string( $color ) ) {
+		return '';
+	}
+
+	$color = sanitize_hex_color( $color );
+
+	return is_string( $color ) ? $color : '';
+}
+
+/**
  * Get SVG icon markup for a staff social link.
  *
  * @param string $platform Platform slug.
@@ -329,6 +345,8 @@ function webba_default_block_content( $type ) {
 			'description'  => __( 'Built for service businesses using Webba Booking, Gutenberg, and optional Elementor layouts.', 'webba-starter' ),
 			'buttonText'   => __( 'Book an Appointment', 'webba-starter' ),
 			'buttonUrl'    => '#booking',
+			'buttonTextColor' => '',
+			'buttonBackgroundColor' => '',
 			'sectionStyle' => 'primary-soft',
 			'features'     => array(
 				array( 'text' => __( 'Real-time service booking', 'webba-starter' ) ),
@@ -387,12 +405,23 @@ function webba_render_hero_block( $attributes ) {
 	$description = $attributes['description'] ?? $defaults['description'];
 	$button_text = $attributes['buttonText'] ?? $defaults['buttonText'];
 	$button_url  = $attributes['buttonUrl'] ?? $defaults['buttonUrl'];
+	$button_text_color = webba_sanitize_color_value( $attributes['buttonTextColor'] ?? $defaults['buttonTextColor'] );
+	$button_background = webba_sanitize_color_value( $attributes['buttonBackgroundColor'] ?? $defaults['buttonBackgroundColor'] );
 	$media_url   = $attributes['mediaUrl'] ?? '';
 	$layout      = $attributes['layout'] ?? 'media-right';
 	$content_pos = $attributes['contentPosition'] ?? 'left';
 	$vertical    = $attributes['verticalAlign'] ?? 'center';
 	$image_pos   = $attributes['imagePosition'] ?? 'center';
 	$features    = webba_sanitize_items( $attributes['features'] ?? $defaults['features'] );
+	$button_style = '';
+
+	if ( $button_text_color ) {
+		$button_style .= 'color:' . $button_text_color . ';';
+	}
+
+	if ( $button_background ) {
+		$button_style .= 'background-color:' . $button_background . ';';
+	}
 
 	ob_start();
 	?>
@@ -402,7 +431,7 @@ function webba_render_hero_block( $attributes ) {
 				<?php if ( $eyebrow ) : ?><p class="webba-eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>
 				<h1><?php echo esc_html( $title ); ?></h1>
 				<?php if ( $description ) : ?><p class="webba-hero-block__description"><?php echo esc_html( $description ); ?></p><?php endif; ?>
-				<?php if ( $button_text ) : ?><a class="webba-button" href="<?php echo esc_url( $button_url ); ?>"><?php echo esc_html( $button_text ); ?></a><?php endif; ?>
+				<?php if ( $button_text ) : ?><a class="webba-button" style="<?php echo esc_attr( $button_style ); ?>" href="<?php echo esc_url( $button_url ); ?>"><?php echo esc_html( $button_text ); ?></a><?php endif; ?>
 			</div>
 			<div class="webba-hero-block__visual">
 				<?php if ( $media_url ) : ?>
@@ -452,6 +481,30 @@ function webba_render_cards_block( $attributes, $type ) {
 			<?php endif; ?>
 			<div class="webba-block-grid webba-block-grid--<?php echo esc_attr( $columns ); ?>">
 				<?php foreach ( $items as $item ) : ?>
+					<?php
+					$label_text_color       = webba_sanitize_color_value( $item['labelTextColor'] ?? '' );
+					$label_background_color = webba_sanitize_color_value( $item['labelBackgroundColor'] ?? '' );
+					$button_text_color      = webba_sanitize_color_value( $item['buttonTextColor'] ?? '' );
+					$button_background      = webba_sanitize_color_value( $item['buttonBackgroundColor'] ?? '' );
+					$label_style            = '';
+					$button_style           = '';
+
+					if ( $label_text_color ) {
+						$label_style .= 'color:' . $label_text_color . ';';
+					}
+
+					if ( $label_background_color ) {
+						$label_style .= 'background-color:' . $label_background_color . ';';
+					}
+
+					if ( $button_text_color ) {
+						$button_style .= 'color:' . $button_text_color . ';';
+					}
+
+					if ( $button_background ) {
+						$button_style .= 'background-color:' . $button_background . ';';
+					}
+					?>
 					<article class="webba-block-card">
 						<?php if ( 'testimonials' === $type ) : ?>
 							<div class="webba-testimonial-stars" aria-label="<?php echo esc_attr( sprintf( __( '%d out of 5 stars', 'webba-starter' ), absint( $item['rating'] ?? 5 ) ) ); ?>">
@@ -462,7 +515,7 @@ function webba_render_cards_block( $attributes, $type ) {
 							<?php if ( ! empty( $item['position'] ) ) : ?><p class="webba-testimonial-position"><?php echo esc_html( $item['position'] ); ?></p><?php endif; ?>
 						<?php else : ?>
 							<?php if ( ! empty( $item['imageUrl'] ) ) : ?><img class="webba-block-card__image" src="<?php echo esc_url( $item['imageUrl'] ); ?>" alt=""><?php endif; ?>
-							<?php if ( ! empty( $item['label'] ) ) : ?><p class="webba-card-label"><?php echo esc_html( $item['label'] ); ?></p><?php endif; ?>
+							<?php if ( ! empty( $item['label'] ) ) : ?><p class="webba-card-label" style="<?php echo esc_attr( $label_style ); ?>"><?php echo esc_html( $item['label'] ); ?></p><?php endif; ?>
 							<?php if ( ! empty( $item['title'] ) ) : ?><h3><?php echo esc_html( $item['title'] ); ?></h3><?php endif; ?>
 							<?php if ( ! empty( $item['price'] ) ) : ?><p class="webba-card-price"><?php echo esc_html( $item['price'] ); ?></p><?php endif; ?>
 							<?php if ( ! empty( $item['text'] ) ) : ?><p><?php echo esc_html( $item['text'] ); ?></p><?php endif; ?>
@@ -482,7 +535,7 @@ function webba_render_cards_block( $attributes, $type ) {
 								<?php endif; ?>
 							<?php endif; ?>
 							<?php if ( in_array( $type, array( 'services', 'pricing' ), true ) && ! empty( $item['buttonText'] ) ) : ?>
-								<a class="webba-card-button" href="<?php echo esc_url( $item['buttonUrl'] ?? '#' ); ?>"><?php echo esc_html( $item['buttonText'] ); ?></a>
+								<a class="webba-card-button" style="<?php echo esc_attr( $button_style ); ?>" href="<?php echo esc_url( $item['buttonUrl'] ?? '#' ); ?>"><?php echo esc_html( $item['buttonText'] ); ?></a>
 							<?php endif; ?>
 						<?php endif; ?>
 					</article>

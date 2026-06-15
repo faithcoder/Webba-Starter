@@ -249,8 +249,7 @@
 
 .webba-card-button:hover,
 .webba-card-button:focus {
-	color: var(--white);
-	background: var(--primary);
+	filter: brightness(1.05);
 }
 
 .webba-social-links {
