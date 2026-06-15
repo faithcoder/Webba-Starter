@@ -13,7 +13,7 @@ Webba Starter is a lightweight hybrid WordPress theme for businesses using the W
 - Hybrid WordPress architecture, not Full Site Editing.
 - Webba Booking shortcode support with `[webbabooking]`.
 - Custom Webba Gutenberg blocks for Hero, Services, Booking, Staff, Pricing, Testimonials, FAQ, and Contact CTA sections.
-- Gutenberg pattern sections and complete demo homepage patterns built from the Webba blocks.
+- Gutenberg pattern sections built from the Webba blocks.
 - Optional Elementor Full Width and Elementor Canvas page templates.
 - Customizer controls for header CTA, contact details, footer copyright, and default booking shortcode.
 - Responsive, mobile-first CSS without Bootstrap, Tailwind, or jQuery.
@@ -28,7 +28,7 @@ The theme registers five One Click Demo Import packs:
 - Fitness Trainer
 - Rental Units
 
-The demo folders contain placeholder files. Build real Gutenberg demo pages, export them to WXR XML, then replace the placeholder files before release.
+The demo folders contain placeholder files. Build real Gutenberg demo content, export it to WXR XML, then replace the placeholder files before release.
 
 ## TGMPA Plugin Installation
 
@@ -46,13 +46,9 @@ Configure services, duration, availability, pricing, deposits, approval rules, r
 
 ## Gutenberg Patterns
 
-Patterns are available under:
+Patterns are available under Webba Sections.
 
-- Webba Demo Pages
-- Webba Sections
-- Webba Booking Sections
-
-Use these to build exportable demo pages without requiring Elementor. The patterns are composed from custom `webba/*` blocks, so users can insert a professional section and then adjust its content and design settings in the block sidebar.
+Use these to build pages without requiring Elementor. The patterns are composed from custom `webba/*` blocks, so users can insert a professional section and then adjust its content and design settings in the block sidebar.
 
 ## Webba Blocks
 
@@ -100,4 +96,4 @@ If Webba Booking provides a Gutenberg block, insert it into the booking section 
 
 ## Future Demo Expansion
 
-Add a new folder under `demo-content/`, create a matching homepage pattern, export Gutenberg content to `content.xml`, export widgets to `widgets.wie`, export Customizer settings to `customizer.dat`, and add a preview image.
+Add a new folder under `demo-content/`, export Gutenberg content to `content.xml`, export widgets to `widgets.wie`, export Customizer settings to `customizer.dat`, and add a preview image.

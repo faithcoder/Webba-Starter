@@ -168,8 +168,7 @@ img {
 	padding: clamp(3rem, 7vw, 6rem) 0;
 }
 
-.webba-section--light,
-.webba-booking-section {
+.webba-section--light {
 	background: var(--light);
 }
 

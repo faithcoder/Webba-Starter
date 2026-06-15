@@ -62,13 +62,95 @@
 		sectionStyle: { type: 'string', default: 'default' }
 	};
 
-	var headingAttributes = Object.assign({}, sharedAttributes, {
-		title: { type: 'string', default: '' },
-		eyebrow: { type: 'string', default: '' },
-		description: { type: 'string', default: '' },
-		columns: { type: 'number', default: 3 },
-		items: { type: 'array', default: [] }
-	});
+	var blockDefaults = {
+		hero: {
+			eyebrow: 'Simple online booking',
+			title: 'Launch a professional booking website faster.',
+			description: 'Built for service businesses using Webba Booking, Gutenberg, and optional Elementor layouts.',
+			buttonText: 'Book an Appointment',
+			buttonUrl: '#booking',
+			sectionStyle: 'primary-soft',
+			features: [{ text: 'Real-time service booking' }, { text: 'Deposits and approvals' }, { text: 'Reminder-ready workflows' }]
+		},
+		booking: {
+			eyebrow: 'Booking',
+			title: 'Book your appointment',
+			description: 'Choose a service and time below. Users may replace this with the Webba Gutenberg block, Webba shortcode, or Elementor Webba widget.',
+			shortcode: '[webbabooking]',
+			sectionStyle: 'light'
+		},
+		services: {
+			eyebrow: 'Services',
+			title: 'Services designed for easy scheduling.',
+			description: 'Show your appointment types with duration, value, and clear booking context.',
+			items: [
+				{ title: 'Consultations', text: 'Short sessions for first-time clients and follow-ups.', label: '30 min', buttonText: 'View Details', buttonUrl: '#' },
+				{ title: 'Treatments', text: 'Longer appointments with clear duration and availability.', label: '60 min', buttonText: 'View Details', buttonUrl: '#' },
+				{ title: 'Packages', text: 'Promote bundles, deposits, buffers, and repeat bookings.', label: 'Popular', buttonText: 'View Details', buttonUrl: '#' }
+			]
+		},
+		pricing: {
+			eyebrow: 'Pricing',
+			title: 'Transparent service packages',
+			description: 'Use pricing cards for deposits, service tiers, or promotional packages.',
+			sectionStyle: 'light',
+			items: [
+				{ title: 'Starter', text: 'Single service appointments.', price: '$49', label: 'Basic', buttonText: 'Book Now', buttonUrl: '#booking' },
+				{ title: 'Professional', text: 'Packages, deposits, and buffers.', price: '$89', label: 'Popular', buttonText: 'Book Now', buttonUrl: '#booking' },
+				{ title: 'Premium', text: 'Advanced scheduling workflows.', price: '$129', label: 'Complete', buttonText: 'Book Now', buttonUrl: '#booking' }
+			]
+		},
+		staff: {
+			eyebrow: 'Team',
+			title: 'Experienced professionals ready to help.',
+			description: 'Introduce the people clients can trust before they book.',
+			items: [
+				{ title: 'Alex Morgan', text: 'Lead specialist', label: 'Senior', socialLinks: [{ platform: 'linkedin', url: 'https://linkedin.com/' }, { platform: 'instagram', url: 'https://instagram.com/' }] },
+				{ title: 'Sam Rivera', text: 'Client care and scheduling', label: 'Support', socialLinks: [{ platform: 'facebook', url: 'https://facebook.com/' }] },
+				{ title: 'Taylor Chen', text: 'Service expert', label: 'Provider', socialLinks: [{ platform: 'x', url: 'https://x.com/' }] }
+			]
+		},
+		testimonials: {
+			eyebrow: 'Testimonials',
+			title: 'Clients appreciate the simple booking flow.',
+			description: 'Build trust with short proof points close to the booking area.',
+			items: [
+				{ title: 'Avery Brooks', text: 'The booking process was easy from my phone.', position: 'Marketing Director', rating: 5 },
+				{ title: 'Morgan Lee', text: 'A polished experience from start to finish.', position: 'Operations Lead', rating: 5 },
+				{ title: 'Jordan Smith', text: 'The reminders made the appointment simple.', position: 'Client Success Manager', rating: 5 }
+			]
+		},
+		faq: {
+			eyebrow: 'FAQ',
+			title: 'Frequently asked questions',
+			description: 'Answer common booking concerns before clients choose a time.',
+			items: [
+				{ title: 'Can I reschedule?', text: 'Rescheduling rules are managed in Webba Booking.' },
+				{ title: 'Do I need to pay online?', text: 'Payment methods and deposits are configured inside Webba Booking.' },
+				{ title: 'Will I receive reminders?', text: 'Reminder emails are configured in Webba Booking.' }
+			]
+		},
+		contactCta: {
+			title: 'Ready to schedule your visit?',
+			description: 'Use Webba Booking to manage services, availability, deposits, reminders, and payment methods.',
+			buttonText: 'Book Now',
+			buttonUrl: '#booking',
+			sectionStyle: 'dark'
+		}
+	};
+
+	function headingAttributesWithDefaults(defaults) {
+		defaults = defaults || {};
+
+		return Object.assign({}, sharedAttributes, {
+			sectionStyle: { type: 'string', default: defaults.sectionStyle || 'default' },
+			title: { type: 'string', default: defaults.title || '' },
+			eyebrow: { type: 'string', default: defaults.eyebrow || '' },
+			description: { type: 'string', default: defaults.description || '' },
+			columns: { type: 'number', default: defaults.columns || 3 },
+			items: { type: 'array', default: defaults.items || [] }
+		});
+	}
 
 	function styleOptions() {
 		return [
@@ -171,6 +253,59 @@
 		});
 	}
 
+	function socialPlatformOptions() {
+		return [
+			{ label: __('Facebook', 'webba-starter'), value: 'facebook' },
+			{ label: __('Instagram', 'webba-starter'), value: 'instagram' },
+			{ label: __('LinkedIn', 'webba-starter'), value: 'linkedin' },
+			{ label: __('X', 'webba-starter'), value: 'x' },
+			{ label: __('YouTube', 'webba-starter'), value: 'youtube' },
+			{ label: __('Website', 'webba-starter'), value: 'website' }
+		];
+	}
+
+	function updateSocialLink(items, itemIndex, socialIndex, key, value) {
+		return (items || []).map(function (item, currentItemIndex) {
+			if (currentItemIndex !== itemIndex) {
+				return item;
+			}
+
+			var nextItem = Object.assign({}, item);
+			var nextLinks = (nextItem.socialLinks || []).slice();
+			var nextLink = Object.assign({}, nextLinks[socialIndex] || {});
+			nextLink[key] = value;
+			nextLinks[socialIndex] = nextLink;
+			nextItem.socialLinks = nextLinks;
+			return nextItem;
+		});
+	}
+
+	function addSocialLink(items, itemIndex) {
+		return (items || []).map(function (item, currentItemIndex) {
+			if (currentItemIndex !== itemIndex) {
+				return item;
+			}
+
+			var nextItem = Object.assign({}, item);
+			nextItem.socialLinks = (nextItem.socialLinks || []).concat([{ platform: 'linkedin', url: '' }]);
+			return nextItem;
+		});
+	}
+
+	function removeSocialLink(items, itemIndex, socialIndex) {
+		return (items || []).map(function (item, currentItemIndex) {
+			if (currentItemIndex !== itemIndex) {
+				return item;
+			}
+
+			var nextItem = Object.assign({}, item);
+			nextItem.socialLinks = (nextItem.socialLinks || []).filter(function (link, currentSocialIndex) {
+				return currentSocialIndex !== socialIndex;
+			});
+			return nextItem;
+		});
+	}
+
 	function moveItem(items, index, direction) {
 		var next = (items || []).slice();
 		var target = index + direction;
@@ -191,6 +326,9 @@
 		var showPrice = options.showPrice !== false;
 		var showImage = options.showImage !== false;
 		var showRating = options.showRating === true;
+		var showButtonLink = options.showButtonLink === true;
+		var showPosition = options.showPosition === true;
+		var showSocialLinks = options.showSocialLinks === true;
 		var labelText = options.labelText || __('Label / duration', 'webba-starter');
 		var titleLabel = options.titleLabel || __('Title', 'webba-starter');
 		var textLabel = options.textLabel || __('Text', 'webba-starter');
@@ -237,6 +375,27 @@
 							setItems(updateItem(items, index, 'price', value));
 						}
 					}) : null,
+					showPosition ? el(TextControl, {
+						label: __('Author position', 'webba-starter'),
+						value: item.position || '',
+						onChange: function (value) {
+							setItems(updateItem(items, index, 'position', value));
+						}
+					}) : null,
+					showButtonLink ? el(TextControl, {
+						label: options.buttonTextLabel || __('Button text', 'webba-starter'),
+						value: item.buttonText || '',
+						onChange: function (value) {
+							setItems(updateItem(items, index, 'buttonText', value));
+						}
+					}) : null,
+					showButtonLink ? el(TextControl, {
+						label: options.buttonLinkLabel || __('Button link', 'webba-starter'),
+						value: item.buttonUrl || '',
+						onChange: function (value) {
+							setItems(updateItem(items, index, 'buttonUrl', value));
+						}
+					}) : null,
 					showRating ? el(RangeControl, {
 						label: __('Star rating', 'webba-starter'),
 						value: item.rating || 5,
@@ -267,6 +426,42 @@
 								}
 							}, __('Remove', 'webba-starter')) : null
 						)
+					) : null,
+					showSocialLinks ? el(PanelBody, {
+						title: __('Social Profiles', 'webba-starter'),
+						initialOpen: false
+					},
+						(item.socialLinks || []).map(function (socialLink, socialIndex) {
+							return el('div', { className: 'webba-editor-social-link', key: socialIndex },
+								el(SelectControl, {
+									label: __('Platform', 'webba-starter'),
+									value: socialLink.platform || 'linkedin',
+									options: socialPlatformOptions(),
+									onChange: function (value) {
+										setItems(updateSocialLink(items, index, socialIndex, 'platform', value));
+									}
+								}),
+								el(TextControl, {
+									label: __('Profile URL', 'webba-starter'),
+									value: socialLink.url || '',
+									onChange: function (value) {
+										setItems(updateSocialLink(items, index, socialIndex, 'url', value));
+									}
+								}),
+								el(Button, {
+									isDestructive: true,
+									onClick: function () {
+										setItems(removeSocialLink(items, index, socialIndex));
+									}
+								}, __('Remove profile', 'webba-starter'))
+							);
+						}),
+						el(Button, {
+							variant: 'secondary',
+							onClick: function () {
+								setItems(addSocialLink(items, index));
+							}
+						}, __('Add social profile', 'webba-starter'))
 					) : null,
 					el('div', { className: 'webba-editor-control-row' },
 						el(Button, {
@@ -302,7 +497,11 @@
 						text: '',
 						label: '',
 						price: '',
-						imageUrl: ''
+						imageUrl: '',
+						buttonText: '',
+						buttonUrl: '',
+						position: '',
+						socialLinks: []
 					}]));
 				}
 			}, __('Add card', 'webba-starter'))
@@ -326,9 +525,14 @@
 							setAttributes({ columns: value });
 						},
 						showPrice: type === 'pricing',
+						showButtonLink: type === 'services' || type === 'pricing',
 						showLabel: type !== 'testimonials',
 						showImage: type !== 'testimonials',
 						showRating: type === 'testimonials',
+						showPosition: type === 'testimonials',
+						showSocialLinks: type === 'staff',
+						buttonTextLabel: type === 'services' ? __('View details text', 'webba-starter') : __('Book now text', 'webba-starter'),
+						buttonLinkLabel: type === 'services' ? __('View details link', 'webba-starter') : __('Book now link', 'webba-starter'),
 						titleLabel: type === 'testimonials' ? __('Author', 'webba-starter') : __('Title', 'webba-starter'),
 						labelText: type === 'staff' ? __('Role / position', 'webba-starter') : __('Label / duration', 'webba-starter'),
 						textLabel: type === 'staff' ? __('Bio', 'webba-starter') : (type === 'testimonials' ? __('Quote text', 'webba-starter') : __('Text', 'webba-starter'))
@@ -347,7 +551,8 @@
 								return el('article', { className: 'webba-block-card', key: index },
 									el('div', { className: 'webba-testimonial-stars' }, '★'.repeat(Math.max(1, Math.min(5, item.rating || 5)))),
 									item.text ? el('blockquote', { className: 'webba-testimonial-quote' }, item.text) : null,
-									item.title ? el('p', { className: 'webba-testimonial-author' }, item.title) : null
+									item.title ? el('p', { className: 'webba-testimonial-author' }, item.title) : null,
+									item.position ? el('p', { className: 'webba-testimonial-position' }, item.position) : null
 								);
 							}
 
@@ -356,7 +561,19 @@
 								item.label ? el('p', { className: 'webba-card-label' }, item.label) : null,
 								item.title ? el('h3', null, item.title) : null,
 								item.price ? el('p', { className: 'webba-card-price' }, item.price) : null,
-								item.text ? el('p', null, item.text) : null
+								item.text ? el('p', null, item.text) : null,
+								type === 'staff' && (item.socialLinks || []).some(function (link) { return !!link.url; }) ? el('div', { className: 'webba-social-links' },
+									(item.socialLinks || []).filter(function (link) {
+										return !!link.url;
+									}).map(function (link, socialIndex) {
+										return el('a', {
+											className: 'webba-social-link',
+											href: link.url,
+											key: socialIndex
+										}, (link.platform || 'w').slice(0, 1).toUpperCase());
+									})
+								) : null,
+								(type === 'services' || type === 'pricing') && item.buttonText ? el('a', { className: 'webba-card-button', href: item.buttonUrl || '#' }, item.buttonText) : null
 							);
 						})
 					)
@@ -370,7 +587,7 @@
 			title: title,
 			icon: icon,
 			category: 'webba',
-			attributes: headingAttributes,
+			attributes: headingAttributesWithDefaults(defaults),
 			supports: supports,
 			edit: cardsEdit(name.replace('webba/', ''), defaults),
 			save: function () {
@@ -384,17 +601,18 @@
 		icon: 'cover-image',
 		category: 'webba',
 		attributes: Object.assign({}, sharedAttributes, {
-			title: { type: 'string', default: 'Launch a polished booking website.' },
-			eyebrow: { type: 'string', default: 'Webba Booking ready' },
-			description: { type: 'string', default: 'Create a modern service business homepage with booking, service highlights, and a strong conversion path.' },
-			buttonText: { type: 'string', default: 'Book Now' },
-			buttonUrl: { type: 'string', default: '#booking' },
+			sectionStyle: { type: 'string', default: blockDefaults.hero.sectionStyle },
+			title: { type: 'string', default: blockDefaults.hero.title },
+			eyebrow: { type: 'string', default: blockDefaults.hero.eyebrow },
+			description: { type: 'string', default: blockDefaults.hero.description },
+			buttonText: { type: 'string', default: blockDefaults.hero.buttonText },
+			buttonUrl: { type: 'string', default: blockDefaults.hero.buttonUrl },
 			mediaUrl: { type: 'string', default: '' },
 			layout: { type: 'string', default: 'media-right' },
 			contentPosition: { type: 'string', default: 'left' },
 			verticalAlign: { type: 'string', default: 'center' },
 			imagePosition: { type: 'string', default: 'center' },
-			features: { type: 'array', default: [{ text: 'Real-time service booking' }, { text: 'Deposits and approvals' }, { text: 'Reminder-ready workflows' }] }
+			features: { type: 'array', default: blockDefaults.hero.features }
 		}),
 		supports: supports,
 		edit: function (props) {
@@ -498,10 +716,11 @@
 		icon: 'calendar-alt',
 		category: 'webba',
 		attributes: Object.assign({}, sharedAttributes, {
-			title: { type: 'string', default: 'Book your appointment' },
-			eyebrow: { type: 'string', default: 'Booking' },
-			description: { type: 'string', default: 'Choose a service and time below.' },
-			shortcode: { type: 'string', default: '[webbabooking]' },
+			sectionStyle: { type: 'string', default: blockDefaults.booking.sectionStyle },
+			title: { type: 'string', default: blockDefaults.booking.title },
+			eyebrow: { type: 'string', default: blockDefaults.booking.eyebrow },
+			description: { type: 'string', default: blockDefaults.booking.description },
+			shortcode: { type: 'string', default: blockDefaults.booking.shortcode },
 			previewInEditor: { type: 'boolean', default: true }
 		}),
 		supports: supports,
@@ -547,7 +766,7 @@
 		title: __('Webba FAQ', 'webba-starter'),
 		icon: 'editor-help',
 		category: 'webba',
-		attributes: headingAttributes,
+		attributes: headingAttributesWithDefaults(blockDefaults.faq),
 		supports: supports,
 		edit: function (props) {
 			var attributes = props.attributes;
@@ -592,10 +811,11 @@
 		icon: 'megaphone',
 		category: 'webba',
 		attributes: Object.assign({}, sharedAttributes, {
-			title: { type: 'string', default: 'Ready to schedule your visit?' },
-			description: { type: 'string', default: 'Use Webba Booking to manage services, availability, deposits, reminders, and payment methods.' },
-			buttonText: { type: 'string', default: 'Book Now' },
-			buttonUrl: { type: 'string', default: '#booking' }
+			sectionStyle: { type: 'string', default: blockDefaults.contactCta.sectionStyle },
+			title: { type: 'string', default: blockDefaults.contactCta.title },
+			description: { type: 'string', default: blockDefaults.contactCta.description },
+			buttonText: { type: 'string', default: blockDefaults.contactCta.buttonText },
+			buttonUrl: { type: 'string', default: blockDefaults.contactCta.buttonUrl }
 		}),
 		supports: supports,
 		edit: function (props) {
@@ -623,41 +843,8 @@
 		}
 	});
 
-	registerCardsBlock('webba/services', __('Webba Services', 'webba-starter'), 'grid-view', {
-		eyebrow: 'Services',
-		title: 'Services designed for easy scheduling.',
-		description: 'Show durations, outcomes, and booking-friendly service details.',
-		items: [
-			{ title: 'Consultation', text: 'A focused first appointment.', label: '30 min' },
-			{ title: 'Treatment', text: 'A longer session with a specialist.', label: '60 min' },
-			{ title: 'Follow-up', text: 'Keep clients coming back.', label: '15 min' }
-		]
-	});
-	registerCardsBlock('webba/pricing', __('Webba Pricing', 'webba-starter'), 'money-alt', {
-		eyebrow: 'Pricing',
-		title: 'Transparent service packages.',
-		items: [
-			{ title: 'Starter', text: 'Single service booking.', price: '$49' },
-			{ title: 'Professional', text: 'Packages and deposits.', price: '$89' },
-			{ title: 'Premium', text: 'Advanced scheduling.', price: '$129' }
-		]
-	});
-	registerCardsBlock('webba/staff', __('Webba Staff', 'webba-starter'), 'groups', {
-		eyebrow: 'Team',
-		title: 'Meet the professionals.',
-		items: [
-			{ title: 'Alex Morgan', text: 'Lead specialist', label: 'Senior' },
-			{ title: 'Sam Rivera', text: 'Client care', label: 'Support' },
-			{ title: 'Taylor Chen', text: 'Service expert', label: 'Provider' }
-		]
-	});
-	registerCardsBlock('webba/testimonials', __('Webba Testimonials', 'webba-starter'), 'format-quote', {
-		eyebrow: 'Testimonials',
-		title: 'Clients appreciate the simple booking flow.',
-		items: [
-			{ title: 'Avery Brooks', text: 'The booking process was easy from my phone.', rating: 5 },
-			{ title: 'Morgan Lee', text: 'A polished experience from start to finish.', rating: 5 },
-			{ title: 'Jordan Smith', text: 'The reminders made the appointment simple.', rating: 5 }
-		]
-	});
+	registerCardsBlock('webba/services', __('Webba Services', 'webba-starter'), 'grid-view', blockDefaults.services);
+	registerCardsBlock('webba/pricing', __('Webba Pricing', 'webba-starter'), 'money-alt', blockDefaults.pricing);
+	registerCardsBlock('webba/staff', __('Webba Staff', 'webba-starter'), 'groups', blockDefaults.staff);
+	registerCardsBlock('webba/testimonials', __('Webba Testimonials', 'webba-starter'), 'format-quote', blockDefaults.testimonials);
 }(window.wp.blocks, window.wp.element, window.wp.blockEditor, window.wp.components, window.wp.i18n, window.wp.serverSideRender));

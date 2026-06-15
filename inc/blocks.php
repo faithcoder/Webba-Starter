@@ -114,6 +114,60 @@ function webba_sanitize_items( $items ) {
 }
 
 /**
+ * Sanitize staff social links.
+ *
+ * @param mixed $links Social links.
+ * @return array
+ */
+function webba_sanitize_social_links( $links ) {
+	if ( ! is_array( $links ) ) {
+		return array();
+	}
+
+	$allowed_platforms = array( 'facebook', 'instagram', 'linkedin', 'x', 'youtube', 'website' );
+	$sanitized         = array();
+
+	foreach ( $links as $link ) {
+		if ( ! is_array( $link ) ) {
+			continue;
+		}
+
+		$platform = sanitize_key( $link['platform'] ?? '' );
+		$url      = esc_url_raw( $link['url'] ?? '' );
+
+		if ( ! in_array( $platform, $allowed_platforms, true ) || '' === $url ) {
+			continue;
+		}
+
+		$sanitized[] = array(
+			'platform' => $platform,
+			'url'      => $url,
+		);
+	}
+
+	return $sanitized;
+}
+
+/**
+ * Get SVG icon markup for a staff social link.
+ *
+ * @param string $platform Platform slug.
+ * @return string
+ */
+function webba_get_social_icon_svg( $platform ) {
+	$icons = array(
+		'facebook'  => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.6 1.7-1.6H16V4.8c-.3 0-.9-.1-1.9-.1-2.8 0-4.6 1.7-4.6 4.8V11H7v3h2.6v7h3.9Z" fill="currentColor"/></svg>',
+		'instagram' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.8 3h8.4A4.8 4.8 0 0 1 21 7.8v8.4a4.8 4.8 0 0 1-4.8 4.8H7.8A4.8 4.8 0 0 1 3 16.2V7.8A4.8 4.8 0 0 1 7.8 3Zm0 1.8A3 3 0 0 0 4.8 7.8v8.4a3 3 0 0 0 3 3h8.4a3 3 0 0 0 3-3V7.8a3 3 0 0 0-3-3H7.8Zm8.85 1.35a1.05 1.05 0 1 1 0 2.1 1.05 1.05 0 0 1 0-2.1ZM12 7.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5Zm0 1.8A2.7 2.7 0 1 0 14.7 12 2.7 2.7 0 0 0 12 9.3Z" fill="currentColor"/></svg>',
+		'linkedin'  => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 8.3a1.7 1.7 0 1 1 0-3.4 1.7 1.7 0 0 1 0 3.4ZM4.7 9.9h3V19h-3V9.9Zm4.9 0h2.8v1.2h.1c.4-.7 1.4-1.5 2.8-1.5 3 0 3.6 2 3.6 4.5V19h-3v-4.2c0-1 0-2.4-1.5-2.4s-1.7 1.1-1.7 2.3V19h-3V9.9Z" fill="currentColor"/></svg>',
+		'x'         => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 4H21l-4.6 5.3L21.8 20h-4.2l-3.3-4.8L10.1 20H8l4.9-5.6L7.7 4h4.3l3 4.4L18.9 4Zm-.8 14.5h1.2L10.6 5.4H9.3l8.8 13.1Z" fill="currentColor"/></svg>',
+		'youtube'   => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 8.2a2.8 2.8 0 0 0-2-2C17.8 5.7 12 5.7 12 5.7s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 3.8 2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-3.8ZM10.1 15.2V8.8l5.5 3.2-5.5 3.2Z" fill="currentColor"/></svg>',
+		'website'   => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Zm6.9 8h-3.1a14.8 14.8 0 0 0-1.3-5.1A7.2 7.2 0 0 1 18.9 11ZM12 4.8c.8 0 2.2 2.2 2.8 6.2H9.2C9.8 7 11.2 4.8 12 4.8ZM9.5 5.9A14.8 14.8 0 0 0 8.2 11H5.1a7.2 7.2 0 0 1 4.4-5.1ZM5.1 13h3.1a14.8 14.8 0 0 0 1.3 5.1A7.2 7.2 0 0 1 5.1 13Zm6.9 6.2c-.8 0-2.2-2.2-2.8-6.2h5.6c-.6 4-2 6.2-2.8 6.2Zm2.5-1.1a14.8 14.8 0 0 0 1.3-5.1h3.1a7.2 7.2 0 0 1-4.4 5.1Z" fill="currentColor"/></svg>',
+	);
+
+	return $icons[ $platform ] ?? '';
+}
+
+/**
  * Default card content by block type.
  *
  * @param string $type Block type.
@@ -124,87 +178,196 @@ function webba_default_card_block_content( $type ) {
 		'services'     => array(
 			'eyebrow'     => __( 'Services', 'webba-starter' ),
 			'title'       => __( 'Services designed for easy scheduling.', 'webba-starter' ),
-			'description' => __( 'Show durations, outcomes, and booking-friendly service details.', 'webba-starter' ),
+			'description' => __( 'Show your appointment types with duration, value, and clear booking context.', 'webba-starter' ),
 			'items'       => array(
 				array(
-					'title' => __( 'Consultation', 'webba-starter' ),
-					'text'  => __( 'A focused first appointment.', 'webba-starter' ),
-					'label' => __( '30 min', 'webba-starter' ),
+					'title'      => __( 'Consultations', 'webba-starter' ),
+					'text'       => __( 'Short sessions for first-time clients and follow-ups.', 'webba-starter' ),
+					'label'      => __( '30 min', 'webba-starter' ),
+					'buttonText' => __( 'View Details', 'webba-starter' ),
+					'buttonUrl'  => '#',
 				),
 				array(
-					'title' => __( 'Treatment', 'webba-starter' ),
-					'text'  => __( 'A longer session with a specialist.', 'webba-starter' ),
-					'label' => __( '60 min', 'webba-starter' ),
+					'title'      => __( 'Treatments', 'webba-starter' ),
+					'text'       => __( 'Longer appointments with clear duration and availability.', 'webba-starter' ),
+					'label'      => __( '60 min', 'webba-starter' ),
+					'buttonText' => __( 'View Details', 'webba-starter' ),
+					'buttonUrl'  => '#',
 				),
 				array(
-					'title' => __( 'Follow-up', 'webba-starter' ),
-					'text'  => __( 'Keep clients coming back.', 'webba-starter' ),
-					'label' => __( '15 min', 'webba-starter' ),
+					'title'      => __( 'Packages', 'webba-starter' ),
+					'text'       => __( 'Promote bundles, deposits, buffers, and repeat bookings.', 'webba-starter' ),
+					'label'      => __( 'Popular', 'webba-starter' ),
+					'buttonText' => __( 'View Details', 'webba-starter' ),
+					'buttonUrl'  => '#',
 				),
 			),
 		),
 		'pricing'      => array(
-			'eyebrow' => __( 'Pricing', 'webba-starter' ),
-			'title'   => __( 'Transparent service packages.', 'webba-starter' ),
-			'items'   => array(
+			'eyebrow'     => __( 'Pricing', 'webba-starter' ),
+			'title'       => __( 'Transparent service packages', 'webba-starter' ),
+			'description' => __( 'Use pricing cards for deposits, service tiers, or promotional packages.', 'webba-starter' ),
+			'sectionStyle' => 'light',
+			'items'       => array(
 				array(
-					'title' => __( 'Starter', 'webba-starter' ),
-					'text'  => __( 'Single service booking.', 'webba-starter' ),
-					'price' => '$49',
+					'title'      => __( 'Starter', 'webba-starter' ),
+					'text'       => __( 'Single service appointments.', 'webba-starter' ),
+					'price'      => '$49',
+					'label'      => __( 'Basic', 'webba-starter' ),
+					'buttonText' => __( 'Book Now', 'webba-starter' ),
+					'buttonUrl'  => '#booking',
 				),
 				array(
-					'title' => __( 'Professional', 'webba-starter' ),
-					'text'  => __( 'Packages and deposits.', 'webba-starter' ),
-					'price' => '$89',
+					'title'      => __( 'Professional', 'webba-starter' ),
+					'text'       => __( 'Packages, deposits, and buffers.', 'webba-starter' ),
+					'price'      => '$89',
+					'label'      => __( 'Popular', 'webba-starter' ),
+					'buttonText' => __( 'Book Now', 'webba-starter' ),
+					'buttonUrl'  => '#booking',
 				),
 				array(
-					'title' => __( 'Premium', 'webba-starter' ),
-					'text'  => __( 'Advanced scheduling.', 'webba-starter' ),
-					'price' => '$129',
+					'title'      => __( 'Premium', 'webba-starter' ),
+					'text'       => __( 'Advanced scheduling workflows.', 'webba-starter' ),
+					'price'      => '$129',
+					'label'      => __( 'Complete', 'webba-starter' ),
+					'buttonText' => __( 'Book Now', 'webba-starter' ),
+					'buttonUrl'  => '#booking',
 				),
 			),
 		),
 		'staff'        => array(
-			'eyebrow' => __( 'Team', 'webba-starter' ),
-			'title'   => __( 'Meet the professionals.', 'webba-starter' ),
-			'items'   => array(
+			'eyebrow'     => __( 'Team', 'webba-starter' ),
+			'title'       => __( 'Experienced professionals ready to help.', 'webba-starter' ),
+			'description' => __( 'Introduce the people clients can trust before they book.', 'webba-starter' ),
+			'items'       => array(
 				array(
-					'title' => __( 'Alex Morgan', 'webba-starter' ),
-					'text'  => __( 'Lead specialist', 'webba-starter' ),
-					'label' => __( 'Senior', 'webba-starter' ),
+					'title'       => __( 'Alex Morgan', 'webba-starter' ),
+					'text'        => __( 'Lead specialist', 'webba-starter' ),
+					'label'       => __( 'Senior', 'webba-starter' ),
+					'socialLinks' => array(
+						array(
+							'platform' => 'linkedin',
+							'url'      => 'https://linkedin.com/',
+						),
+						array(
+							'platform' => 'instagram',
+							'url'      => 'https://instagram.com/',
+						),
+					),
 				),
 				array(
-					'title' => __( 'Sam Rivera', 'webba-starter' ),
-					'text'  => __( 'Client care', 'webba-starter' ),
-					'label' => __( 'Support', 'webba-starter' ),
+					'title'       => __( 'Sam Rivera', 'webba-starter' ),
+					'text'        => __( 'Client care and scheduling', 'webba-starter' ),
+					'label'       => __( 'Support', 'webba-starter' ),
+					'socialLinks' => array(
+						array(
+							'platform' => 'facebook',
+							'url'      => 'https://facebook.com/',
+						),
+					),
 				),
 				array(
-					'title' => __( 'Taylor Chen', 'webba-starter' ),
-					'text'  => __( 'Service expert', 'webba-starter' ),
-					'label' => __( 'Provider', 'webba-starter' ),
+					'title'       => __( 'Taylor Chen', 'webba-starter' ),
+					'text'        => __( 'Service expert', 'webba-starter' ),
+					'label'       => __( 'Provider', 'webba-starter' ),
+					'socialLinks' => array(
+						array(
+							'platform' => 'x',
+							'url'      => 'https://x.com/',
+						),
+					),
 				),
 			),
 		),
 		'testimonials' => array(
-			'eyebrow' => __( 'Testimonials', 'webba-starter' ),
-			'title'   => __( 'Clients appreciate the simple booking flow.', 'webba-starter' ),
-			'items'   => array(
+			'eyebrow'     => __( 'Testimonials', 'webba-starter' ),
+			'title'       => __( 'Clients appreciate the simple booking flow.', 'webba-starter' ),
+			'description' => __( 'Build trust with short proof points close to the booking area.', 'webba-starter' ),
+			'items'       => array(
 				array(
-					'title'  => __( 'Avery Brooks', 'webba-starter' ),
-					'text'   => __( 'The booking process was easy from my phone.', 'webba-starter' ),
-					'rating' => 5,
+					'title'    => __( 'Avery Brooks', 'webba-starter' ),
+					'text'     => __( 'The booking process was easy from my phone.', 'webba-starter' ),
+					'position' => __( 'Marketing Director', 'webba-starter' ),
+					'rating'   => 5,
 				),
 				array(
-					'title'  => __( 'Morgan Lee', 'webba-starter' ),
-					'text'   => __( 'A polished experience from start to finish.', 'webba-starter' ),
-					'rating' => 5,
+					'title'    => __( 'Morgan Lee', 'webba-starter' ),
+					'text'     => __( 'A polished experience from start to finish.', 'webba-starter' ),
+					'position' => __( 'Operations Lead', 'webba-starter' ),
+					'rating'   => 5,
 				),
 				array(
-					'title'  => __( 'Jordan Smith', 'webba-starter' ),
-					'text'   => __( 'The reminders made the appointment simple.', 'webba-starter' ),
-					'rating' => 5,
+					'title'    => __( 'Jordan Smith', 'webba-starter' ),
+					'text'     => __( 'The reminders made the appointment simple.', 'webba-starter' ),
+					'position' => __( 'Client Success Manager', 'webba-starter' ),
+					'rating'   => 5,
 				),
 			),
+		),
+	);
+
+	return $defaults[ $type ] ?? array();
+}
+
+/**
+ * Default content by block type.
+ *
+ * @param string $type Block type.
+ * @return array
+ */
+function webba_default_block_content( $type ) {
+	$card_defaults = webba_default_card_block_content( $type );
+
+	if ( ! empty( $card_defaults ) ) {
+		return $card_defaults;
+	}
+
+	$defaults = array(
+		'hero'        => array(
+			'eyebrow'      => __( 'Simple online booking', 'webba-starter' ),
+			'title'        => __( 'Launch a professional booking website faster.', 'webba-starter' ),
+			'description'  => __( 'Built for service businesses using Webba Booking, Gutenberg, and optional Elementor layouts.', 'webba-starter' ),
+			'buttonText'   => __( 'Book an Appointment', 'webba-starter' ),
+			'buttonUrl'    => '#booking',
+			'sectionStyle' => 'primary-soft',
+			'features'     => array(
+				array( 'text' => __( 'Real-time service booking', 'webba-starter' ) ),
+				array( 'text' => __( 'Deposits and approvals', 'webba-starter' ) ),
+				array( 'text' => __( 'Reminder-ready workflows', 'webba-starter' ) ),
+			),
+		),
+		'booking'     => array(
+			'eyebrow'      => __( 'Booking', 'webba-starter' ),
+			'title'        => __( 'Book your appointment', 'webba-starter' ),
+			'description'  => __( 'Choose a service and time below. Users may replace this with the Webba Gutenberg block, Webba shortcode, or Elementor Webba widget.', 'webba-starter' ),
+			'shortcode'    => '[webbabooking]',
+			'sectionStyle' => 'light',
+		),
+		'faq'         => array(
+			'eyebrow'     => __( 'FAQ', 'webba-starter' ),
+			'title'       => __( 'Frequently asked questions', 'webba-starter' ),
+			'description' => __( 'Answer common booking concerns before clients choose a time.', 'webba-starter' ),
+			'items'       => array(
+				array(
+					'title' => __( 'Can I reschedule?', 'webba-starter' ),
+					'text'  => __( 'Rescheduling rules are managed in Webba Booking.', 'webba-starter' ),
+				),
+				array(
+					'title' => __( 'Do I need to pay online?', 'webba-starter' ),
+					'text'  => __( 'Payment methods and deposits are configured inside Webba Booking.', 'webba-starter' ),
+				),
+				array(
+					'title' => __( 'Will I receive reminders?', 'webba-starter' ),
+					'text'  => __( 'Reminder emails are configured in Webba Booking.', 'webba-starter' ),
+				),
+			),
+		),
+		'contact-cta' => array(
+			'title'        => __( 'Ready to schedule your visit?', 'webba-starter' ),
+			'description'  => __( 'Use Webba Booking to manage services, availability, deposits, reminders, and payment methods.', 'webba-starter' ),
+			'buttonText'   => __( 'Book Now', 'webba-starter' ),
+			'buttonUrl'    => '#booking',
+			'sectionStyle' => 'dark',
 		),
 	);
 
@@ -218,17 +381,18 @@ function webba_default_card_block_content( $type ) {
  * @return string
  */
 function webba_render_hero_block( $attributes ) {
-	$title       = $attributes['title'] ?? __( 'Launch a polished booking website.', 'webba-starter' );
-	$eyebrow     = $attributes['eyebrow'] ?? __( 'Webba Booking ready', 'webba-starter' );
-	$description = $attributes['description'] ?? '';
-	$button_text = $attributes['buttonText'] ?? __( 'Book Now', 'webba-starter' );
-	$button_url  = $attributes['buttonUrl'] ?? '#booking';
+	$defaults    = webba_default_block_content( 'hero' );
+	$title       = $attributes['title'] ?? $defaults['title'];
+	$eyebrow     = $attributes['eyebrow'] ?? $defaults['eyebrow'];
+	$description = $attributes['description'] ?? $defaults['description'];
+	$button_text = $attributes['buttonText'] ?? $defaults['buttonText'];
+	$button_url  = $attributes['buttonUrl'] ?? $defaults['buttonUrl'];
 	$media_url   = $attributes['mediaUrl'] ?? '';
 	$layout      = $attributes['layout'] ?? 'media-right';
 	$content_pos = $attributes['contentPosition'] ?? 'left';
 	$vertical    = $attributes['verticalAlign'] ?? 'center';
 	$image_pos   = $attributes['imagePosition'] ?? 'center';
-	$features    = webba_sanitize_items( $attributes['features'] ?? array() );
+	$features    = webba_sanitize_items( $attributes['features'] ?? $defaults['features'] );
 
 	ob_start();
 	?>
@@ -295,12 +459,31 @@ function webba_render_cards_block( $attributes, $type ) {
 							</div>
 							<?php if ( ! empty( $item['text'] ) ) : ?><blockquote class="webba-testimonial-quote"><?php echo esc_html( $item['text'] ); ?></blockquote><?php endif; ?>
 							<?php if ( ! empty( $item['title'] ) ) : ?><p class="webba-testimonial-author"><?php echo esc_html( $item['title'] ); ?></p><?php endif; ?>
+							<?php if ( ! empty( $item['position'] ) ) : ?><p class="webba-testimonial-position"><?php echo esc_html( $item['position'] ); ?></p><?php endif; ?>
 						<?php else : ?>
 							<?php if ( ! empty( $item['imageUrl'] ) ) : ?><img class="webba-block-card__image" src="<?php echo esc_url( $item['imageUrl'] ); ?>" alt=""><?php endif; ?>
 							<?php if ( ! empty( $item['label'] ) ) : ?><p class="webba-card-label"><?php echo esc_html( $item['label'] ); ?></p><?php endif; ?>
 							<?php if ( ! empty( $item['title'] ) ) : ?><h3><?php echo esc_html( $item['title'] ); ?></h3><?php endif; ?>
 							<?php if ( ! empty( $item['price'] ) ) : ?><p class="webba-card-price"><?php echo esc_html( $item['price'] ); ?></p><?php endif; ?>
 							<?php if ( ! empty( $item['text'] ) ) : ?><p><?php echo esc_html( $item['text'] ); ?></p><?php endif; ?>
+							<?php if ( 'staff' === $type ) : ?>
+								<?php $social_links = webba_sanitize_social_links( $item['socialLinks'] ?? array() ); ?>
+								<?php if ( ! empty( $social_links ) ) : ?>
+									<div class="webba-social-links">
+										<?php foreach ( $social_links as $social_link ) : ?>
+											<?php $icon = webba_get_social_icon_svg( $social_link['platform'] ); ?>
+											<?php if ( $icon ) : ?>
+												<a class="webba-social-link" href="<?php echo esc_url( $social_link['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( ucfirst( $social_link['platform'] ) ); ?>">
+													<?php echo $icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+												</a>
+											<?php endif; ?>
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+							<?php endif; ?>
+							<?php if ( in_array( $type, array( 'services', 'pricing' ), true ) && ! empty( $item['buttonText'] ) ) : ?>
+								<a class="webba-card-button" href="<?php echo esc_url( $item['buttonUrl'] ?? '#' ); ?>"><?php echo esc_html( $item['buttonText'] ); ?></a>
+							<?php endif; ?>
 						<?php endif; ?>
 					</article>
 				<?php endforeach; ?>
@@ -408,9 +591,10 @@ add_action( 'wp_enqueue_scripts', 'webba_enqueue_booking_block_assets', 20 );
  * @return string
  */
 function webba_render_booking_block( $attributes ) {
-	$title       = $attributes['title'] ?? __( 'Book your appointment', 'webba-starter' );
-	$eyebrow     = $attributes['eyebrow'] ?? __( 'Booking', 'webba-starter' );
-	$description = $attributes['description'] ?? '';
+	$defaults    = webba_default_block_content( 'booking' );
+	$title       = $attributes['title'] ?? $defaults['title'];
+	$eyebrow     = $attributes['eyebrow'] ?? $defaults['eyebrow'];
+	$description = $attributes['description'] ?? $defaults['description'];
 	$shortcode   = $attributes['shortcode'] ?? webba_get_booking_shortcode();
 
 	if ( '' === trim( $shortcode ) ) {
@@ -442,10 +626,11 @@ function webba_render_booking_block( $attributes ) {
  * @return string
  */
 function webba_render_faq_block( $attributes ) {
-	$title       = $attributes['title'] ?? __( 'Frequently asked questions', 'webba-starter' );
-	$eyebrow     = $attributes['eyebrow'] ?? __( 'FAQ', 'webba-starter' );
-	$description = $attributes['description'] ?? '';
-	$items       = webba_sanitize_items( $attributes['items'] ?? array() );
+	$defaults    = webba_default_block_content( 'faq' );
+	$title       = $attributes['title'] ?? $defaults['title'];
+	$eyebrow     = $attributes['eyebrow'] ?? $defaults['eyebrow'];
+	$description = $attributes['description'] ?? $defaults['description'];
+	$items       = webba_sanitize_items( $attributes['items'] ?? $defaults['items'] );
 
 	ob_start();
 	?>
@@ -473,10 +658,11 @@ function webba_render_faq_block( $attributes ) {
  * @return string
  */
 function webba_render_cta_block( $attributes ) {
-	$title       = $attributes['title'] ?? __( 'Ready to book?', 'webba-starter' );
-	$description = $attributes['description'] ?? '';
-	$button_text = $attributes['buttonText'] ?? __( 'Book Now', 'webba-starter' );
-	$button_url  = $attributes['buttonUrl'] ?? '#booking';
+	$defaults    = webba_default_block_content( 'contact-cta' );
+	$title       = $attributes['title'] ?? $defaults['title'];
+	$description = $attributes['description'] ?? $defaults['description'];
+	$button_text = $attributes['buttonText'] ?? $defaults['buttonText'];
+	$button_url  = $attributes['buttonUrl'] ?? $defaults['buttonUrl'];
 
 	ob_start();
 	?>
@@ -520,36 +706,70 @@ add_action( 'init', 'webba_register_block_assets', 5 );
 function webba_register_blocks() {
 	$shared = webba_shared_block_attributes();
 
-	$heading_attrs = array_merge(
-		$shared,
-		array(
-			'title'       => array( 'type' => 'string' ),
-			'eyebrow'     => array( 'type' => 'string' ),
-			'description' => array( 'type' => 'string' ),
-			'columns'     => array(
-				'type'    => 'number',
-				'default' => 3,
-			),
-			'items'       => array(
-				'type'    => 'array',
-				'default' => array(),
-			),
-		)
-	);
+	$heading_attrs = static function( $defaults = array() ) use ( $shared ) {
+		return array_merge(
+			$shared,
+			array(
+				'sectionStyle' => array(
+					'type'    => 'string',
+					'default' => $defaults['sectionStyle'] ?? 'default',
+				),
+				'title'       => array(
+					'type'    => 'string',
+					'default' => $defaults['title'] ?? '',
+				),
+				'eyebrow'     => array(
+					'type'    => 'string',
+					'default' => $defaults['eyebrow'] ?? '',
+				),
+				'description' => array(
+					'type'    => 'string',
+					'default' => $defaults['description'] ?? '',
+				),
+				'columns'     => array(
+					'type'    => 'number',
+					'default' => $defaults['columns'] ?? 3,
+				),
+				'items'       => array(
+					'type'    => 'array',
+					'default' => $defaults['items'] ?? array(),
+				),
+			)
+		);
+	};
 
 	$blocks = array(
 		'webba/hero'         => array(
 			'title'           => __( 'Webba Hero', 'webba-starter' ),
-			'description'     => __( 'Advanced hero section for Webba demo pages.', 'webba-starter' ),
+			'description'     => __( 'Advanced hero section for Webba booking pages.', 'webba-starter' ),
 			'icon'            => 'cover-image',
 			'attributes'      => array_merge(
 				$shared,
 				array(
-					'title'       => array( 'type' => 'string' ),
-					'eyebrow'     => array( 'type' => 'string' ),
-					'description' => array( 'type' => 'string' ),
-					'buttonText'  => array( 'type' => 'string' ),
-					'buttonUrl'   => array( 'type' => 'string' ),
+					'sectionStyle' => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'hero' )['sectionStyle'],
+					),
+					'title'       => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'hero' )['title'],
+					),
+					'eyebrow'     => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'hero' )['eyebrow'],
+					),
+					'description' => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'hero' )['description'],
+					),
+					'buttonText'  => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'hero' )['buttonText'],
+					),
+					'buttonUrl'   => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'hero' )['buttonUrl'],
+					),
 					'mediaUrl'    => array( 'type' => 'string' ),
 					'layout'      => array(
 						'type'    => 'string',
@@ -569,11 +789,7 @@ function webba_register_blocks() {
 					),
 					'features'    => array(
 						'type'    => 'array',
-						'default' => array(
-							array( 'text' => __( 'Real-time service booking', 'webba-starter' ) ),
-							array( 'text' => __( 'Deposits and approvals', 'webba-starter' ) ),
-							array( 'text' => __( 'Reminder-ready workflows', 'webba-starter' ) ),
-						),
+						'default' => webba_default_block_content( 'hero' )['features'],
 					),
 				)
 			),
@@ -583,7 +799,7 @@ function webba_register_blocks() {
 			'title'           => __( 'Webba Services', 'webba-starter' ),
 			'description'     => __( 'Service cards with images, labels, and durations.', 'webba-starter' ),
 			'icon'            => 'grid-view',
-			'attributes'      => $heading_attrs,
+			'attributes'      => $heading_attrs( webba_default_block_content( 'services' ) ),
 			'render_callback' => function( $attributes ) {
 				return webba_render_cards_block( $attributes, 'services' );
 			},
@@ -592,7 +808,7 @@ function webba_register_blocks() {
 			'title'           => __( 'Webba Pricing', 'webba-starter' ),
 			'description'     => __( 'Pricing and package cards.', 'webba-starter' ),
 			'icon'            => 'money-alt',
-			'attributes'      => $heading_attrs,
+			'attributes'      => $heading_attrs( webba_default_block_content( 'pricing' ) ),
 			'render_callback' => function( $attributes ) {
 				return webba_render_cards_block( $attributes, 'pricing' );
 			},
@@ -601,7 +817,7 @@ function webba_register_blocks() {
 			'title'           => __( 'Webba Staff', 'webba-starter' ),
 			'description'     => __( 'Staff or provider cards.', 'webba-starter' ),
 			'icon'            => 'groups',
-			'attributes'      => $heading_attrs,
+			'attributes'      => $heading_attrs( webba_default_block_content( 'staff' ) ),
 			'render_callback' => function( $attributes ) {
 				return webba_render_cards_block( $attributes, 'staff' );
 			},
@@ -610,7 +826,7 @@ function webba_register_blocks() {
 			'title'           => __( 'Webba Testimonials', 'webba-starter' ),
 			'description'     => __( 'Client testimonial cards.', 'webba-starter' ),
 			'icon'            => 'format-quote',
-			'attributes'      => $heading_attrs,
+			'attributes'      => $heading_attrs( webba_default_block_content( 'testimonials' ) ),
 			'render_callback' => function( $attributes ) {
 				return webba_render_cards_block( $attributes, 'testimonials' );
 			},
@@ -622,12 +838,25 @@ function webba_register_blocks() {
 			'attributes'      => array_merge(
 				$shared,
 				array(
-					'title'       => array( 'type' => 'string' ),
-					'eyebrow'     => array( 'type' => 'string' ),
-					'description' => array( 'type' => 'string' ),
+					'sectionStyle' => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'booking' )['sectionStyle'],
+					),
+					'title'       => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'booking' )['title'],
+					),
+					'eyebrow'     => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'booking' )['eyebrow'],
+					),
+					'description' => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'booking' )['description'],
+					),
 					'shortcode'   => array(
 						'type'    => 'string',
-						'default' => '[webbabooking]',
+						'default' => webba_default_block_content( 'booking' )['shortcode'],
 					),
 					'previewInEditor' => array(
 						'type'    => 'boolean',
@@ -641,7 +870,7 @@ function webba_register_blocks() {
 			'title'           => __( 'Webba FAQ', 'webba-starter' ),
 			'description'     => __( 'Accordion FAQ section.', 'webba-starter' ),
 			'icon'            => 'editor-help',
-			'attributes'      => $heading_attrs,
+			'attributes'      => $heading_attrs( webba_default_block_content( 'faq' ) ),
 			'render_callback' => 'webba_render_faq_block',
 		),
 		'webba/contact-cta'  => array(
@@ -651,10 +880,26 @@ function webba_register_blocks() {
 			'attributes'      => array_merge(
 				$shared,
 				array(
-					'title'       => array( 'type' => 'string' ),
-					'description' => array( 'type' => 'string' ),
-					'buttonText'  => array( 'type' => 'string' ),
-					'buttonUrl'   => array( 'type' => 'string' ),
+					'sectionStyle' => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'contact-cta' )['sectionStyle'],
+					),
+					'title'       => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'contact-cta' )['title'],
+					),
+					'description' => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'contact-cta' )['description'],
+					),
+					'buttonText'  => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'contact-cta' )['buttonText'],
+					),
+					'buttonUrl'   => array(
+						'type'    => 'string',
+						'default' => webba_default_block_content( 'contact-cta' )['buttonUrl'],
+					),
 				)
 			),
 			'render_callback' => 'webba_render_cta_block',

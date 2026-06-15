@@ -113,18 +113,8 @@ function webba_register_pattern_categories() {
 	}
 
 	register_block_pattern_category(
-		'webba-demo-pages',
-		array( 'label' => esc_html__( 'Webba Demo Pages', 'webba-starter' ) )
-	);
-
-	register_block_pattern_category(
 		'webba-sections',
 		array( 'label' => esc_html__( 'Webba Sections', 'webba-starter' ) )
-	);
-
-	register_block_pattern_category(
-		'webba-booking-sections',
-		array( 'label' => esc_html__( 'Webba Booking Sections', 'webba-starter' ) )
 	);
 }
 add_action( 'init', 'webba_register_pattern_categories' );
